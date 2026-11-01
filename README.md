@@ -43,10 +43,13 @@ npm run test:e2e
 - Crea hasta cinco personajes desde el botón **+** de la bandeja inferior. Personaliza nombre, piel, ropa, cabello y accesorios.
 - Toca un espacio del suelo para caminar o mantén pulsadas las flechas. En computadora funcionan las flechas y WASD.
 - Cambia de escenario con **Casita** y **Jardín**.
-- Toca los objetos etiquetados para cuidar a Nubi, regar Arcoflor, pintar, activar una melodía original y abrir un regalo que desbloquea una corona.
+- Toca un objeto para seleccionarlo y arrástralo con el dedo o el mouse para moverlo. Puedes organizar los juguetes, el sofá, el armario, la mesita, el cuadro, las plantas y el banco del jardín.
+- Pulsa **Usar** sobre un objeto seleccionado para cuidar a Nubi, regar Arcoflor, pintar, activar música o abrir la sorpresa. **Volver a su lugar** restaura su posición inicial.
+- Selecciona el **Armario** y pulsa **Abrir armario**: arrastra las prendas entre espacios, o toca origen y destino. Selecciona una prenda y pulsa **Poner a…** para vestir a tu personaje.
+- El personaje puede recorrer el escenario visible completo; los límites evitan que salga de pantalla.
 - Cambia de protagonista en la bandeja inferior. Usa **Aventuras** para ver los objetos y recuerdos. El juego de memoria se abre desde **Memoria**.
 
-Personajes y recuerdos se conservan en `localStorage` por navegador y origen. Los logros del minijuego se guardan aparte. No se sincronizan entre dispositivos ni entre las URLs de preview y producción. La apariencia de los personajes y el progreso existentes se conservan al actualizar. La posición, el escenario, la música y el dibujo del caballete se reinician al recargar. Si el almacenamiento está bloqueado, se avisa y el juego sigue funcionando durante la sesión.
+Personajes y recuerdos se conservan en `localStorage` por navegador y origen. Los logros del minijuego se guardan aparte. No se sincronizan entre dispositivos ni entre las URLs de preview y producción. La apariencia de los personajes y el progreso existentes se conservan al actualizar. Las posiciones de objetos y la organización del armario también se guardan. La posición del personaje, el escenario, la música y el dibujo del caballete se reinician al recargar. Si el almacenamiento está bloqueado, se avisa y el juego sigue funcionando durante la sesión.
 
 ## Pantalla de juego
 
@@ -58,7 +61,7 @@ En navegadores compatibles, el botón de pantalla completa oculta la interfaz de
 
 Personajes, mascota, fondos, ilustración y melodía creados para este proyecto. No se usan personajes ni recursos de Avatar World. Los emojis son símbolos nativos del dispositivo. Sin fuentes remotas, imágenes externas, publicidad ni rastreadores.
 
-Primera versión: dos escenarios, cinco interacciones y un minijuego. No incluye multijugador, físicas, obstáculos sólidos, inventario general ni cuentas. Se puede caminar por el área de juego y las interacciones se activan al tocar un objeto, sin requisito de proximidad.
+Primera versión: dos escenarios, cinco interacciones y un minijuego. No incluye multijugador, físicas, obstáculos sólidos ni cuentas. El armario tiene seis espacios para cinco prendas y accesorios; no es un inventario general de objetos. Se puede caminar por el área de juego y las interacciones se activan al tocar un objeto, sin requisito de proximidad.
 
 ## Publicar y aprobar desde el celular
 
@@ -67,3 +70,7 @@ Consulta [la guía paso a paso](docs/PUBLICAR-DESDE-CELULAR.md). Incluye Vercel 
 GitHub Actions compila y ejecuta las pruebas unitarias en cada pull request y cambio a `main`. El workflow `.github/workflows/deploy.yml` publica automáticamente cada cambio de `main` en GitHub Pages y permite ejecuciones manuales. Vite usa `base: '/emiverse/'` para cargar los recursos bajo la ruta del repositorio. La configuración alternativa de Vercel usa `--base=/`. Los tests Playwright se ejecutan en el entorno de desarrollo; no se anuncian como parte de CI.
 
 No se considera publicada una versión hasta abrir su URL y verificar el juego.
+
+## Arquitectura y mantenimiento
+
+Consulta [ARQUITECTURA.md](docs/ARQUITECTURA.md): separación de dominio, aplicación, infraestructura, componentes de habitación/armario y controles de entrada. El guardado utiliza un contrato de repositorio inyectado; las reglas de organización son independientes del navegador.
