@@ -1,0 +1,12 @@
+{
+  "name": "EmiVerse — Created by Emily",
+  "short_name": "EmiVerse",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "display_override": ["fullscreen", "standalone"],
+  "orientation": "any",
+  "background_color": "#ffdbbb",
+  "theme_color": "#ffdbbb",
+  "icons": [{ "src": "favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }]
+}

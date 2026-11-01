@@ -1,6 +1,6 @@
 # EmiVerse — Created by Emily
 
-Primera aventura 2D original para celulares, tablets y navegador. Crea tu personaje, explora una casita y un jardín, cuida a Nubi y colecciona recuerdos. React 19, TypeScript y Vite 8.
+Juego 2D original a pantalla completa para celulares, tablets y PC. La casita y el jardín ocupan todo el espacio de juego, con personajes de ojos grandes, escenarios dibujados en SVG y controles flotantes. Crea tu personaje, explora una casita y un jardín, cuida a Nubi y colecciona recuerdos. React 19, TypeScript y Vite 8.
 
 ## Estado inicial del repositorio
 
@@ -40,13 +40,19 @@ npm run test:e2e
 
 ## Jugar desde el celular
 
-- Crea hasta cinco personajes. Personaliza nombre, piel, ropa, cabello y accesorios.
+- Crea hasta cinco personajes desde el botón **+** de la bandeja inferior. Personaliza nombre, piel, ropa, cabello y accesorios.
 - Toca un espacio del suelo para caminar o mantén pulsadas las flechas. En computadora funcionan las flechas y WASD.
 - Cambia de escenario con **Casita** y **Jardín**.
 - Toca los objetos etiquetados para cuidar a Nubi, regar Arcoflor, pintar, activar una melodía original y abrir un regalo que desbloquea una corona.
-- Cambia de protagonista en el panel de personajes. El juego de memoria se abre desde la tarjeta inferior.
+- Cambia de protagonista en la bandeja inferior. Usa **Aventuras** para ver los objetos y recuerdos. El juego de memoria se abre desde **Memoria**.
 
-Personajes y recuerdos se conservan en `localStorage` por navegador y origen. Los logros del minijuego se guardan aparte. No se sincronizan entre dispositivos ni entre las URLs de preview y producción. La posición, el escenario, la música y el dibujo del caballete se reinician al recargar. Si el almacenamiento está bloqueado, se avisa y el juego sigue funcionando durante la sesión.
+Personajes y recuerdos se conservan en `localStorage` por navegador y origen. Los logros del minijuego se guardan aparte. No se sincronizan entre dispositivos ni entre las URLs de preview y producción. La apariencia de los personajes y el progreso existentes se conservan al actualizar. La posición, el escenario, la música y el dibujo del caballete se reinician al recargar. Si el almacenamiento está bloqueado, se avisa y el juego sigue funcionando durante la sesión.
+
+## Pantalla de juego
+
+No hay cabeceras de sitio, barras laterales, tarjetas de presentación ni desplazamiento de página en el mundo. Los controles se superponen al escenario. El tamaño del dibujo se adapta con ResizeObserver sin estirar los personajes, y funciona en vertical y horizontal.
+
+En navegadores compatibles, el botón de pantalla completa oculta la interfaz del navegador. En celular también puedes añadir EmiVerse a la pantalla de inicio: el manifiesto solicita modo de aplicación. No se fuerza la orientación ni se bloquea el zoom accesible. Es necesario tener conexión para cargar: no se implementa juego offline.
 
 ## Diseño y alcance
 
