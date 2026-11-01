@@ -58,6 +58,6 @@ Primera versión: dos escenarios, cinco interacciones y un minijuego. No incluye
 
 Consulta [la guía paso a paso](docs/PUBLICAR-DESDE-CELULAR.md). Incluye Vercel con vistas previas por pull request y GitHub Pages para producción, sin terminal local.
 
-GitHub Actions compila y ejecuta las pruebas unitarias en cada pull request y cambio a `main`. El workflow de Pages publica cambios de `main` cuando Pages está configurado para usar **GitHub Actions**. Los tests Playwright se ejecutan en el entorno de desarrollo; no se anuncian como parte de CI.
+GitHub Actions compila y ejecuta las pruebas unitarias en cada pull request y cambio a `main`. El workflow `.github/workflows/deploy.yml` publica automáticamente cada cambio de `main` en GitHub Pages y permite ejecuciones manuales. Vite usa `base: '/emiverse/'` para cargar los recursos bajo la ruta del repositorio. La configuración alternativa de Vercel usa `--base=/`. Los tests Playwright se ejecutan en el entorno de desarrollo; no se anuncian como parte de CI.
 
 No se considera publicada una versión hasta abrir su URL y verificar el juego.
