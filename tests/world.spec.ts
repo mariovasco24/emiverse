@@ -3,7 +3,7 @@ test('desde móvil: crear, personalizar, caminar, interactuar y recargar', async
   const errors: string[] = []
   page.on('pageerror', error => errors.push(error.message))
   await page.setViewportSize({ width: 390, height: 844 })
-  await page.goto('/')
+  await page.goto('/emiverse/')
   await expect(page.getByText('EmiVerse — Created by Emily', { exact: true })).toBeVisible()
   await page.getByRole('button', { name: 'Crear personaje', exact: true }).click()
   await page.getByLabel('¿Cómo te llamas?').fill('Luna')
@@ -50,7 +50,7 @@ test('desde móvil: crear, personalizar, caminar, interactuar y recargar', async
   expect(errors).toEqual([])
 })
 test('mover tocando el suelo y guardar personajes de forma independiente', async ({ page }) => {
-  await page.goto('/')
+  await page.goto('/emiverse/')
   const scene = page.getByRole('region', { name: 'Escenario de la casita' })
   const r = await scene.boundingBox()
   await scene.click({ position: { x: r!.width * .13, y: r!.height * .85 } })

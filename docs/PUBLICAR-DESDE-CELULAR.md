@@ -2,22 +2,15 @@
 
 Todo el ciclo puede hacerse con este chat y los sitios móviles de GitHub y Vercel. No necesitas una computadora, instalar Node ni usar una terminal local.
 
-## 0. Integrar esta primera versión
+## 0. Primera versión integrada
 
-El código está subido a `feat/emiverse-first-playable`. Como el repositorio estaba vacío, `main` contiene únicamente un commit inicial sin archivos. Antes de importar `main` en Vercel o ejecutar Pages:
-
-1. Abre [crear el primer pull request](https://github.com/mariovasco24/emiverse/compare/main...feat/emiverse-first-playable?expand=1) desde el celular.
-2. Usa el título «EmiVerse: primera aventura 2D para celulares» y el resumen de [PRIMER-PULL-REQUEST.md](PRIMER-PULL-REQUEST.md).
-3. Crea el PR, espera la verificación y revisa los archivos. Cuando lo apruebes, intégralo con **Merge pull request**. No lo integres si deseas cambios adicionales antes de la primera publicación.
-4. Continúa con la conexión inicial de Vercel o Pages. Para las siguientes versiones ya tendrás vistas previas automáticas de Vercel antes de integrar.
-
-La creación automática del PR quedó bloqueada porque el proxy del entorno rechaza `api.github.com` con HTTP 403. Las ramas sí se subieron. Este enlace abre el formulario; no representa un PR ya creado.
+El [PR #1](https://github.com/mariovasco24/emiverse/pull/1) está integrado en `main`. GitHub Pages está configurado con **GitHub Actions** como origen. No es necesario volver a crear ese PR ni integrar su rama.
 
 ## 1. Publicar por primera vez en Vercel (opción recomendada)
 
 1. En el navegador del celular entra a Vercel e inicia sesión con GitHub.
 2. Elige **Add New → Project**, importa `mariovasco24/emiverse` y autoriza el acceso al repositorio.
-3. Selecciona **Vite**. La configuración ya indica `npm ci`, `npm run build` y salida `dist`. Usa Node 24 y rama de producción `main`. No necesitas variables ni secretos.
+3. Selecciona **Vite**. La configuración ya indica `npm ci`, `npm run build -- --base=/` y salida `dist`. Usa Node 24 y rama de producción `main`. No necesitas variables ni secretos.
 4. Pulsa **Deploy**. Espera a que el despliegue termine correctamente.
 5. Abre la URL que Vercel te muestre. Comprueba que carga «EmiVerse — Created by Emily», crea un personaje, camina, cambia al jardín y recarga para comprobar el guardado.
 6. Guarda la URL en tus favoritos o añádela a la pantalla de inicio. Esta versión requiere conexión para cargar; no es una aplicación offline.
@@ -28,7 +21,7 @@ Conecta Vercel al repositorio una vez. Sus despliegues de vista previa permiten 
 
 1. En GitHub, abre el repositorio → **Settings → Pages**. Si no ves la opción en móvil, activa «Sitio de escritorio» en el navegador.
 2. En **Build and deployment → Source**, selecciona **GitHub Actions**.
-3. Integra el pull request en `main`. El workflow **Publicar EmiVerse en GitHub Pages** ejecutará las pruebas, compilará con base `/emiverse/` y desplegará `dist`.
+3. Integra el pull request en `main`. El workflow **Publicar EmiVerse en GitHub Pages** (`.github/workflows/deploy.yml`) ejecutará las pruebas, compilará con la base `/emiverse/` definida en Vite y desplegará `dist`. Cada cambio integrado en `main` genera automáticamente un nuevo despliegue.
 4. Revisa la ejecución en la pestaña **Actions**. Si necesitas repetirla, abre el workflow y pulsa **Run workflow** sobre `main`.
 5. Abre la URL que aparezca en la sección `github-pages` del despliegue. Para este repositorio, la dirección prevista es `https://mariovasco24.github.io/emiverse/`; es solo una dirección prevista hasta comprobar un despliegue real.
 

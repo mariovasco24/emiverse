@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test'
 test('completa un mundo, desbloquea el siguiente y conserva el progreso', async ({ page }) => {
   const errors: string[] = []
   page.on('pageerror', error => errors.push(error.message))
-  await page.goto('/')
+  await page.goto('/emiverse/')
   await page.getByRole('button', { name: '¡Vamos a jugar!' }).click()
   await expect(page.getByRole('heading', { name: 'Tu próxima aventura está aquí' })).toBeVisible()
   await expect(page.getByRole('button', { name: /MUNDO 02/ })).toBeDisabled()
@@ -37,7 +37,7 @@ test('completa un mundo, desbloquea el siguiente y conserva el progreso', async 
 })
 test('pausa, reinicio, ayuda y diseño móvil', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 })
-  await page.goto('/')
+  await page.goto('/emiverse/')
   await page.getByRole('button', { name: '¡Vamos a jugar!' }).click()
   await page.getByRole('button', { name: 'Revelar carta 1', exact: true }).click()
   await page.getByRole('button', { name: 'Pausar partida', exact: true }).click()
