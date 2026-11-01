@@ -9,6 +9,7 @@ export type Gesture = {
   moved: boolean
 }
 type Callbacks = {
+  consumePointerClick?: boolean
   start: () => void
   move: (gesture: Gesture) => void
   end: (gesture: Gesture) => void
@@ -86,8 +87,8 @@ export function usePointerGesture(callbacks: Callbacks, disabled = false) {
         if (!g) return
         e.stopPropagation()
         active.current = null
-        suppressClick.current = g.moved
-        if (g.moved) suppressCompatibilityClick()
+        suppressClick.current = g.moved || !!current.current.consumePointerClick
+        if (suppressClick.current) suppressCompatibilityClick()
         current.current.end(g)
         if (e.currentTarget.hasPointerCapture(e.pointerId))
           e.currentTarget.releasePointerCapture(e.pointerId)
