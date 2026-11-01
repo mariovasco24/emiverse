@@ -4,7 +4,7 @@ test('completa un mundo, desbloquea el siguiente y conserva el progreso', async 
   page.on('pageerror', error => errors.push(error.message))
   await page.goto('/emiverse/')
   await page.getByRole('button', { name: '¡Vamos a jugar!' }).click()
-  await expect(page.getByRole('heading', { name: 'Tu próxima aventura está aquí' })).toBeVisible()
+  await expect(page.locator('.game-header h2')).toHaveText('Jardín de estrellas')
   await expect(page.getByRole('button', { name: /MUNDO 02/ })).toBeDisabled()
   // Inspect the board through its visible faces, just as a player would.
   const known = new Map<string, number>()

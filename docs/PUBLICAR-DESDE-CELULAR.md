@@ -13,7 +13,7 @@ El [PR #1](https://github.com/mariovasco24/emiverse/pull/1) está integrado en `
 3. Selecciona **Vite**. La configuración ya indica `npm ci`, `npm run build -- --base=/` y salida `dist`. Usa Node 24 y rama de producción `main`. No necesitas variables ni secretos.
 4. Pulsa **Deploy**. Espera a que el despliegue termine correctamente.
 5. Abre la URL que Vercel te muestre. Comprueba que carga «EmiVerse — Created by Emily», crea un personaje, camina, cambia al jardín y recarga para comprobar el guardado.
-6. Guarda la URL en tus favoritos o añádela a la pantalla de inicio. Esta versión requiere conexión para cargar; no es una aplicación offline.
+6. Guarda la URL en tus favoritos o añádela a la pantalla de inicio (Safari: Compartir → Añadir a pantalla de inicio; Chrome: menú → Añadir a pantalla de inicio). El manifiesto permite abrir el juego en modo de aplicación, sin barra de dirección, cuando el navegador lo admite. Esta versión requiere conexión para cargar; no es una aplicación offline.
 
 Conecta Vercel al repositorio una vez. Sus despliegues de vista previa permiten probar cada pull request en el celular antes de aprobarlo. Las vistas previas pueden requerir iniciar sesión en Vercel según la protección que configures. No compartas una URL como pública hasta comprobarla sin iniciar sesión.
 

@@ -53,7 +53,7 @@ test('mover tocando el suelo y guardar personajes de forma independiente', async
   await page.goto('/emiverse/')
   const scene = page.getByRole('region', { name: 'Escenario de la casita' })
   const r = await scene.boundingBox()
-  await scene.click({ position: { x: r!.width * .13, y: r!.height * .85 } })
+  await scene.click({ position: { x: r!.width * .32, y: r!.height * .86 } })
   await expect.poll(async () => Number(await page.locator('.world-player').getAttribute('data-x'))).toBeLessThan(45)
   await page.getByRole('button', { name: 'Mover arriba' }).focus()
   await page.keyboard.press('Enter')
