@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test'
 test('completa un mundo, desbloquea el siguiente y conserva el progreso', async ({ page }) => {
   const errors: string[] = []
-  page.on('pageerror', error => errors.push(error.message))
+  page.on('pageerror', (error) => errors.push(error.message))
   await page.goto('/emiverse/')
   await page.getByRole('button', { name: '¡Vamos a jugar!' }).click()
   await expect(page.locator('.game-header h2')).toHaveText('Jardín de estrellas')
@@ -15,13 +15,17 @@ test('completa un mundo, desbloquea el siguiente y conserva el progreso', async 
     const a = await cards.nth(i).getAttribute('aria-label')
     await cards.nth(i + 1).click()
     const b = await cards.nth(i + 1).getAttribute('aria-label')
-    for (const [symbol, index] of [[a!, i], [b!, i + 1]] as const) {
-      if (known.has(symbol)) pairs.push([known.get(symbol)!, index]); else known.set(symbol, index)
+    for (const [symbol, index] of [
+      [a!, i],
+      [b!, i + 1],
+    ] as const) {
+      if (known.has(symbol)) pairs.push([known.get(symbol)!, index])
+      else known.set(symbol, index)
     }
     await expect(page.locator('.memory-card.revealed:not(.matched)')).toHaveCount(0)
   }
   for (const [a, b] of pairs) {
-    if (await cards.nth(a).evaluate(el => el.classList.contains('matched'))) continue
+    if (await cards.nth(a).evaluate((el) => el.classList.contains('matched'))) continue
     await cards.nth(a).click()
     await cards.nth(b).click()
     await expect(cards.nth(a)).toHaveClass(/matched/)
