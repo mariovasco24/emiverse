@@ -2,6 +2,17 @@
 
 Todo el ciclo puede hacerse con este chat y los sitios móviles de GitHub y Vercel. No necesitas una computadora, instalar Node ni usar una terminal local.
 
+## 0. Integrar esta primera versión
+
+El código está subido a `feat/emiverse-first-playable`. Como el repositorio estaba vacío, `main` contiene únicamente un commit inicial sin archivos. Antes de importar `main` en Vercel o ejecutar Pages:
+
+1. Abre [crear el primer pull request](https://github.com/mariovasco24/emiverse/compare/main...feat/emiverse-first-playable?expand=1) desde el celular.
+2. Usa el título «EmiVerse: primera aventura 2D para celulares» y el resumen de [PRIMER-PULL-REQUEST.md](PRIMER-PULL-REQUEST.md).
+3. Crea el PR, espera la verificación y revisa los archivos. Cuando lo apruebes, intégralo con **Merge pull request**. No lo integres si deseas cambios adicionales antes de la primera publicación.
+4. Continúa con la conexión inicial de Vercel o Pages. Para las siguientes versiones ya tendrás vistas previas automáticas de Vercel antes de integrar.
+
+La creación automática del PR quedó bloqueada porque el proxy del entorno rechaza `api.github.com` con HTTP 403. Las ramas sí se subieron. Este enlace abre el formulario; no representa un PR ya creado.
+
 ## 1. Publicar por primera vez en Vercel (opción recomendada)
 
 1. En el navegador del celular entra a Vercel e inicia sesión con GitHub.
