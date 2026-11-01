@@ -2017,3 +2017,30 @@ body:has(.game-screen) {
     height: 65px;
   }
 }
+/* Keep the selection tools on the opposite side of the room from the selected item. */
+.object-toolbar[data-placement='top'] {
+  top: 95px;
+  bottom: auto;
+}
+@media (orientation: portrait) {
+  .object-toolbar[data-placement='top'] {
+    top: calc(148px + env(safe-area-inset-top));
+    bottom: auto;
+  }
+}
+.world-toast {
+  pointer-events: none;
+  top: 245px;
+}
+.world-toast button {
+  pointer-events: auto;
+}
+@media (orientation: landscape) and (max-height: 550px) {
+  .object-toolbar[data-placement='top'] {
+    top: 75px;
+    bottom: auto;
+  }
+  .world-toast {
+    top: 140px;
+  }
+}

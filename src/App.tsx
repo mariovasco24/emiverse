@@ -26,6 +26,7 @@ import {
   furniture,
   furnitureLayout,
   objectDefault,
+  type FurnitureId,
   type ItemId,
   type ObjectId,
   type Point,
@@ -167,6 +168,16 @@ export default function App() {
     setInteraction(null)
     setSelectedObject(null)
   }
+  const selectedPoint = selectedObject
+    ? save.objectPositions[selectedObject] ||
+      (objects.some((o) => o.id === selectedObject)
+        ? objectDefault(selectedObject as ObjectId, sceneSize.width, sceneSize.height)
+        : furnitureLayout(selectedObject as FurnitureId, sceneSize.width, sceneSize.height).point)
+    : null
+  function selectObject(id: ItemId | null) {
+    setHint(false)
+    setSelectedObject(id)
+  }
   function placeObject(id: ItemId, point: Point) {
     setSave((s) => ({ ...s, objectPositions: { ...s.objectPositions, [id]: point } }))
   }
@@ -256,7 +267,7 @@ export default function App() {
                   sceneRef={sceneRef}
                   selected={selectedObject === item.id}
                   disabled={modalBlocked}
-                  onSelect={setSelectedObject}
+                  onSelect={selectObject}
                   onDrop={placeObject}
                   onBusy={setManipulating}
                   depthOffset={0}
@@ -282,7 +293,7 @@ export default function App() {
                 sceneRef={sceneRef}
                 selected={selectedObject === o.id}
                 disabled={modalBlocked}
-                onSelect={setSelectedObject}
+                onSelect={selectObject}
                 onDrop={placeObject}
                 onBusy={setManipulating}
                 className={`object-${o.id} ${save.collected.includes(o.id) ? 'discovered' : ''}`}
@@ -459,7 +470,12 @@ export default function App() {
         </div>
       </div>
       {selectedObject && !manipulating && !modalBlocked && (
-        <div className="object-toolbar" role="toolbar" aria-label="Objeto seleccionado">
+        <div
+          className="object-toolbar"
+          role="toolbar"
+          aria-label="Objeto seleccionado"
+          data-placement={selectedPoint && selectedPoint.y > 60 ? 'top' : 'bottom'}
+        >
           <strong>
             {[...objects, ...furniture].find((item) => item.id === selectedObject)!.label}
           </strong>

@@ -88,6 +88,9 @@ test.describe('entrada táctil', () => {
     await page.goto('/emiverse/')
     const cdp = await page.context().newCDPSession(page)
     const pet = page.getByRole('button', { name: 'Seleccionar Nubi', exact: true })
+    await pet.tap()
+    await expect(pet).toHaveAttribute('aria-pressed', 'true')
+    await expect(page.getByRole('dialog')).toHaveCount(0)
     const box = (await pet.boundingBox())!
     const x = box.x + box.width / 2,
       y = box.y + box.height / 2

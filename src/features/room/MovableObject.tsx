@@ -73,6 +73,7 @@ export default function MovableObject({
     )
   const gesture = usePointerGesture(
     {
+      consumePointerClick: true,
       start() {
         origin.current = displayed
         onSelect(id)
