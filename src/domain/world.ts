@@ -1,3 +1,4 @@
+import { readCastPositions, type CastPositions } from './cast'
 import { readObjectPositions, type ObjectPositions } from './layout'
 import { initialCloset, readCloset, type ClosetSlots } from './wardrobe'
 export const skinColors = ['#f5d0ad', '#dfab83', '#b97850', '#805239']
@@ -17,6 +18,7 @@ export type WorldSave = {
   watered: boolean
   fed: boolean
   objectPositions: ObjectPositions
+  castPositions: CastPositions
   closetSlots: ClosetSlots
 }
 export const initialSave: WorldSave = {
@@ -36,6 +38,7 @@ export const initialSave: WorldSave = {
   fed: false,
   objectPositions: {},
   closetSlots: initialCloset,
+  castPositions: { home: {}, garden: {} },
 }
 export function parseWorldSave(raw: string | null): WorldSave {
   try {
@@ -74,6 +77,7 @@ export function parseWorldSave(raw: string | null): WorldSave {
     return {
       ...data,
       objectPositions: readObjectPositions(data.objectPositions),
+      castPositions: readCastPositions(data.castPositions, data.characters),
       closetSlots: readCloset(data.closetSlots),
       collected: [...new Set(data.collected)],
     }

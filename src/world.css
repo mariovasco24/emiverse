@@ -216,34 +216,6 @@ body:has(.game-screen) {
 .player-name svg {
   color: #ec9bac;
 }
-.game-neighbor {
-  position: absolute;
-  left: 21%;
-  top: 73%;
-  height: clamp(130px, 28dvh, 265px);
-  aspect-ratio: 2/3;
-  background: none;
-  border: 0;
-  transform: translate(-50%, -100%);
-  padding: 0;
-  touch-action: manipulation;
-}
-.game-neighbor > span {
-  position: absolute;
-  bottom: 104%;
-  left: 50%;
-  transform: translateX(-50%);
-  font-size: 11px;
-  font-weight: 800;
-  background: #e3f0c4;
-  color: #689b88;
-  padding: 4px 10px;
-  border: 2px solid #9db893;
-  border-radius: 15px;
-}
-.game-neighbor:hover {
-  filter: brightness(1.04);
-}
 .walking .leg-left {
   animation: game-walk 0.2s infinite alternate;
   transform-origin: 43px 141px;
@@ -436,63 +408,6 @@ body:has(.game-screen) {
 }
 .game-controls > div {
   pointer-events: auto;
-}
-.direction-pad {
-  position: absolute;
-  left: 24px;
-  bottom: 40px;
-  display: grid;
-  grid-template-columns: repeat(3, 46px);
-  grid-template-rows: repeat(3, 43px);
-  gap: 3px;
-  border-radius: 50%;
-  touch-action: none;
-  filter: drop-shadow(0 5px 0 #a5797b);
-}
-.direction-pad button {
-  display: grid;
-  place-items: center;
-  background: #fff3d7e8;
-  color: #bc8b82;
-  border: 2px solid #b98d83;
-  border-radius: 14px;
-  padding: 0;
-  touch-action: none;
-  user-select: none;
-  min-width: 44px;
-  min-height: 43px;
-}
-.direction-pad button svg {
-  width: 25px;
-  height: 25px;
-  stroke-width: 3;
-}
-.direction-pad button:active {
-  background: #f7cc93;
-  transform: translateY(3px);
-}
-.pad-up {
-  grid-area: 1/2;
-}
-.pad-left {
-  grid-area: 2/1;
-}
-.pad-down {
-  grid-area: 3/2;
-}
-.pad-right {
-  grid-area: 2/3;
-}
-.pad-center {
-  display: grid;
-  place-items: center;
-  grid-area: 2/2;
-  background: #eec7a65e;
-  border-radius: 50%;
-  font-size: 25px;
-  color: #fff3d7;
-  text-shadow: 0 2px #bc8c7e;
-  pointer-events: none;
 }
 .game-family {
   position: absolute;
@@ -1082,10 +997,6 @@ body:has(.game-screen) {
   .game-tools button > span {
     font-size: 9px;
   }
-  .direction-pad {
-    bottom: 30px;
-    left: 18px;
-  }
   .game-family {
     bottom: 28px;
   }
@@ -1099,9 +1010,6 @@ body:has(.game-screen) {
   }
   .world-player {
     height: 32dvh;
-  }
-  .game-neighbor {
-    height: 28dvh;
   }
   .record-player {
     transform: scale(0.85);
@@ -1121,14 +1029,8 @@ body:has(.game-screen) {
     height: 29dvh;
     max-height: 300px;
   }
-  .game-neighbor {
-    height: 26dvh;
-  }
   .game-hint {
     top: 30%;
-  }
-  .game-controls .direction-pad {
-    bottom: calc(90px + env(safe-area-inset-bottom));
   }
   .game-tools {
     bottom: calc(90px + env(safe-area-inset-bottom));
@@ -1224,21 +1126,11 @@ body:has(.game-screen) {
     min-height: 145px;
     max-height: 260px;
   }
-  .game-neighbor {
-    height: 24dvh;
-    max-height: 230px;
-    left: 19%;
-    top: 73%;
-  }
   .player-name {
     font-size: 10px;
     padding: 4px 9px;
     bottom: 100%;
     gap: 4px;
-  }
-  .game-neighbor > span {
-    font-size: 9px;
-    padding: 3px 8px;
   }
   .nubi {
     height: 12dvh;
@@ -1279,22 +1171,6 @@ body:has(.game-screen) {
   .gift-box {
     transform: scale(0.75);
     margin: -7px;
-  }
-  .game-controls .direction-pad {
-    left: 12px;
-    bottom: calc(83px + env(safe-area-inset-bottom));
-    grid-template-columns: repeat(3, 40px);
-    grid-template-rows: repeat(3, 40px);
-    gap: 2px;
-  }
-  .direction-pad button {
-    min-width: 40px;
-    min-height: 40px;
-    border-radius: 13px;
-  }
-  .direction-pad button > svg {
-    width: 22px;
-    height: 22px;
   }
   .game-tools {
     right: 12px;
@@ -1542,15 +1418,8 @@ body:has(.game-screen) {
   .world-player {
     height: 37dvh;
   }
-  .game-neighbor {
-    height: 33dvh;
-  }
   .player-name {
     font-size: 9px;
-    padding: 3px 7px;
-  }
-  .game-neighbor > span {
-    font-size: 8px;
     padding: 3px 7px;
   }
   .scene-object .nubi {
@@ -1579,21 +1448,6 @@ body:has(.game-screen) {
     font-size: 25px;
     border-width: 4px;
     border-bottom-width: 9px;
-  }
-  .game-controls .direction-pad {
-    left: 12px;
-    bottom: 18px;
-    grid-template-columns: repeat(3, 35px);
-    grid-template-rows: repeat(3, 31px);
-    gap: 2px;
-  }
-  .direction-pad button {
-    min-width: 35px;
-    min-height: 31px;
-    border-radius: 11px;
-  }
-  .direction-pad button svg {
-    width: 20px;
   }
   .game-tools {
     bottom: 18px;
@@ -1667,26 +1521,7 @@ body:has(.game-screen) {
   }
 }
 /* Only Leo's name badge catches taps; his drawing never hides an object's hit area. */
-.game-neighbor {
-  pointer-events: none;
-}
-.game-neighbor > span {
-  pointer-events: auto;
-}
 @media (max-width: 520px) and (orientation: portrait) {
-  .game-controls .direction-pad {
-    grid-template-columns: repeat(3, 44px);
-    grid-template-rows: repeat(3, 42px);
-  }
-  .direction-pad button {
-    min-width: 44px;
-    min-height: 42px;
-  }
-  .game-neighbor {
-    left: 18%;
-    top: 77%;
-    height: 23dvh;
-  }
 }
 /* Keep every primary touch target usable without zooming. */
 .game-family button {
@@ -1723,14 +1558,6 @@ body:has(.game-screen) {
   }
 }
 @media (orientation: landscape) and (max-height: 550px) {
-  .game-controls .direction-pad {
-    grid-template-columns: repeat(3, 44px);
-    grid-template-rows: repeat(3, 44px);
-  }
-  .direction-pad button {
-    min-width: 44px;
-    min-height: 44px;
-  }
   .game-family button {
     width: 44px;
     height: 44px;
@@ -1740,16 +1567,7 @@ body:has(.game-screen) {
     width: 31px;
   }
 }
-.direction-pad button {
-  min-height: 44px;
-}
-.direction-pad {
-  grid-template-rows: repeat(3, 44px);
-}
 @media (max-width: 520px) and (orientation: portrait) {
-  .game-controls .direction-pad {
-    grid-template-rows: repeat(3, 44px);
-  }
 }
 /* A movable item owns pointer input; a tap selects, a drag repositions, Use performs its action. */
 .movable-object {
@@ -2043,4 +1861,78 @@ body:has(.game-screen) {
   .world-toast {
     top: 140px;
   }
+}
+/* Every cast member has the same direct manipulation behavior. No directional pad. */
+.movable-character {
+  pointer-events: auto;
+  padding: 0;
+  border: 0;
+  background: none;
+  min-width: 0;
+  min-height: 0;
+  cursor: grab;
+  aspect-ratio: 2/3;
+}
+.movable-character.object-selected {
+  outline: none;
+  filter: drop-shadow(0 0 2px #fff8df);
+}
+.movable-character .original-character,
+.movable-character .player-name {
+  pointer-events: none;
+}
+.movable-character.object-dragging {
+  cursor: grabbing;
+  filter: drop-shadow(0 8px 4px #7a526244);
+}
+.movable-character .player-name {
+  font-size: 11px;
+}
+.guest-character {
+  height: 28dvh;
+  max-height: 265px;
+}
+.game-family {
+  max-width: 58vw;
+}
+@media (orientation: portrait) {
+  .guest-character {
+    height: 24dvh;
+    max-height: 230px;
+  }
+  .game-family {
+    max-width: 85vw;
+  }
+  .game-hint {
+    white-space: normal;
+    text-align: center;
+    width: max-content;
+    max-width: 90%;
+    line-height: 1.5;
+  }
+}
+@media (max-width: 520px) {
+  .game-family {
+    max-width: 90vw;
+  }
+  .game-hint {
+    font-size: 10px;
+    max-width: 90%;
+  }
+  .movable-character .player-name {
+    font-size: 9px;
+  }
+}
+/* Only the illustrated silhouette catches taps, so empty space around a doll does not hide objects. */
+.movable-character {
+  pointer-events: none;
+}
+.movable-character .original-character {
+  pointer-events: none;
+}
+.movable-character .original-character * {
+  pointer-events: visiblePainted;
+}
+.movable-character .player-name {
+  pointer-events: auto;
 }

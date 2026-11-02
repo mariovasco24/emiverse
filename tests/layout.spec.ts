@@ -17,14 +17,14 @@ test('seleccionar, mover y guardar objetos y muebles; usar sigue siendo una acci
   await page.goto('/emiverse/')
   const pet = page.getByRole('button', { name: 'Seleccionar Nubi', exact: true })
   const initialX = Number(await pet.getAttribute('data-x'))
-  const playerX = await page.locator('.world-player').getAttribute('data-x')
+  const playerX = await page.locator('.actor-active').getAttribute('data-x')
   await pet.click()
   await expect(pet).toHaveAttribute('aria-pressed', 'true')
   await expect(page.getByRole('dialog')).toHaveCount(0)
   await drag(page, pet, -170, 35)
   const movedX = Number(await pet.getAttribute('data-x'))
   expect(movedX).toBeLessThan(initialX - 5)
-  await expect(page.locator('.world-player')).toHaveAttribute('data-x', playerX!)
+  await expect(page.locator('.actor-active')).toHaveAttribute('data-x', playerX!)
   await expect(page.getByRole('dialog')).toHaveCount(0)
   await page.reload()
   await expect(pet).toHaveAttribute('data-x', movedX.toFixed(2))
@@ -68,19 +68,19 @@ test('el personaje recorre la casa más allá del área restringida anterior', a
   await page.getByRole('button', { name: 'Cerrar pista' }).click()
   await page.keyboard.down('ArrowUp')
   await expect
-    .poll(async () => Number(await page.locator('.world-player').getAttribute('data-y')), {
+    .poll(async () => Number(await page.locator('.actor-active').getAttribute('data-y')), {
       timeout: 5000,
     })
     .toBeLessThan(44)
   await page.keyboard.up('ArrowUp')
   await page.keyboard.down('ArrowDown')
   await expect
-    .poll(async () => Number(await page.locator('.world-player').getAttribute('data-y')), {
+    .poll(async () => Number(await page.locator('.actor-active').getAttribute('data-y')), {
       timeout: 5000,
     })
     .toBeGreaterThan(90)
   await page.keyboard.up('ArrowDown')
-  expect((await page.locator('.world-player').boundingBox())!.y).toBeGreaterThanOrEqual(0)
+  expect((await page.locator('.actor-active').boundingBox())!.y).toBeGreaterThanOrEqual(0)
 })
 test.describe('entrada táctil', () => {
   test.use({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true })

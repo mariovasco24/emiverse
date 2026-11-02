@@ -41,7 +41,7 @@ npm run test:e2e
 ## Jugar desde el celular
 
 - Crea hasta cinco personajes desde el botón **+** de la bandeja inferior. Personaliza nombre, piel, ropa, cabello y accesorios.
-- Toca un espacio del suelo para caminar o mantén pulsadas las flechas. En computadora funcionan las flechas y WASD.
+- Toca cualquier personaje —incluido Leo— y arrástralo directamente. También puedes seleccionarlo desde la bandeja y tocar el suelo para que camine. No hay flechas en pantalla.
 - Cambia de escenario con **Casita** y **Jardín**.
 - Toca un objeto para seleccionarlo y arrástralo con el dedo o el mouse para moverlo. Puedes organizar los juguetes, el sofá, el armario, la mesita, el cuadro, las plantas y el banco del jardín.
 - Pulsa **Usar** sobre un objeto seleccionado para cuidar a Nubi, regar Arcoflor, pintar, activar música o abrir la sorpresa. **Volver a su lugar** restaura su posición inicial.
@@ -49,7 +49,7 @@ npm run test:e2e
 - El personaje puede recorrer el escenario visible completo; los límites evitan que salga de pantalla.
 - Cambia de protagonista en la bandeja inferior. Usa **Aventuras** para ver los objetos y recuerdos. El juego de memoria se abre desde **Memoria**.
 
-Personajes y recuerdos se conservan en `localStorage` por navegador y origen. Los logros del minijuego se guardan aparte. No se sincronizan entre dispositivos ni entre las URLs de preview y producción. La apariencia de los personajes y el progreso existentes se conservan al actualizar. Las posiciones de objetos y la organización del armario también se guardan. La posición del personaje, el escenario, la música y el dibujo del caballete se reinician al recargar. Si el almacenamiento está bloqueado, se avisa y el juego sigue funcionando durante la sesión.
+Personajes y recuerdos se conservan en `localStorage` por navegador y origen. Los logros del minijuego se guardan aparte. No se sincronizan entre dispositivos ni entre las URLs de preview y producción. La apariencia de los personajes y el progreso existentes se conservan al actualizar. Las posiciones de objetos y la organización del armario también se guardan. La posición de cada personaje se guarda por separado en la casa y el jardín al soltarlo o cuando termina de caminar. El escenario activo, la música y el dibujo del caballete se reinician al recargar. Si el almacenamiento está bloqueado, se avisa y el juego sigue funcionando durante la sesión.
 
 ## Pantalla de juego
 

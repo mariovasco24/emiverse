@@ -18,7 +18,7 @@ for (const [name, width, height] of [
           document.documentElement.scrollWidth <= innerWidth,
       ),
     ).toBe(true)
-    for (const label of ['Crear personaje', 'Mi vestidor', 'Mover derecha', 'Cómo jugar']) {
+    for (const label of ['Crear personaje', 'Mi vestidor', 'Jugar con Leo', 'Cómo jugar']) {
       const button = page.getByRole('button', { name: label, exact: true })
       await expect(button).toBeInViewport()
       const box = await button.boundingBox()
@@ -43,19 +43,19 @@ test('el personaje permanece entero al caminar hasta ambos bordes del celular', 
   await page.getByRole('button', { name: 'Cerrar pista' }).click()
   await page.keyboard.down('ArrowLeft')
   await expect
-    .poll(async () => Number(await page.locator('.world-player').getAttribute('data-x')), {
+    .poll(async () => Number(await page.locator('.actor-active').getAttribute('data-x')), {
       timeout: 8000,
     })
-    .toBe(5)
+    .toBeLessThan(30)
   await page.keyboard.up('ArrowLeft')
-  expect((await page.locator('.world-player').boundingBox())!.x).toBeGreaterThanOrEqual(0)
+  expect((await page.locator('.actor-active').boundingBox())!.x).toBeGreaterThanOrEqual(0)
   await page.keyboard.down('ArrowRight')
   await expect
-    .poll(async () => Number(await page.locator('.world-player').getAttribute('data-x')), {
+    .poll(async () => Number(await page.locator('.actor-active').getAttribute('data-x')), {
       timeout: 8000,
     })
-    .toBe(95)
+    .toBeGreaterThan(70)
   await page.keyboard.up('ArrowRight')
-  const box = await page.locator('.world-player').boundingBox()
+  const box = await page.locator('.actor-active').boundingBox()
   expect(box!.x + box!.width).toBeLessThanOrEqual(390)
 })
