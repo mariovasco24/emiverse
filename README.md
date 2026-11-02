@@ -42,6 +42,7 @@ npm run test:e2e
 
 - Crea hasta cinco personajes desde el botón **+** de la bandeja inferior. Personaliza nombre, piel, ropa, cabello y accesorios.
 - Toca cualquier personaje —incluido Leo— y arrástralo directamente. También puedes seleccionarlo desde la bandeja y tocar el suelo para que camine. No hay flechas en pantalla.
+- Si el navegador interrumpe el arrastre de un personaje o cambia el tamaño de la pantalla, el muñeco conserva su último punto válido; no vuelve al inicio.
 - Toca una puerta para caminar hasta ella y pasar a la habitación siguiente con una transición de cámara. También puedes arrastrar al personaje hasta una salida lateral.
 - Usa **Casita**, **Cocina**, **Dormitorio** o **Jardín** para pedir un recorrido. El personaje cruza las habitaciones intermedias; el selector no lo teletransporta.
 - Si tocas otro punto del suelo, eliges otro personaje o abres un menú, se cancela el recorrido pendiente. La transición que ya empezó termina para mantener la vista coherente.

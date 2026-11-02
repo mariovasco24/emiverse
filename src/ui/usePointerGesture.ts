@@ -33,9 +33,11 @@ export function usePointerGesture(callbacks: Callbacks, disabled = false) {
       if (document.hidden) cancel()
     }
     window.addEventListener('blur', cancel)
+    window.addEventListener('pagehide', cancel)
     document.addEventListener('visibilitychange', visibility)
     return () => {
       window.removeEventListener('blur', cancel)
+      window.removeEventListener('pagehide', cancel)
       document.removeEventListener('visibilitychange', visibility)
       cancel()
     }

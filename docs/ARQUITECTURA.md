@@ -69,3 +69,7 @@ El guardado añade cocina y dormitorio a las coordenadas de personajes y conserv
 `useCharacterMovement` distingue llegada (`onSettled`) de interrupción (`onInterrupted`). Ambas conservan la posición; solo la llegada puede confirmar el cruce por una puerta. `stop` captura el punto actual antes de abrir objetos o cambiar de personaje. Abrir menús, perder el foco, ocultar la página y `pagehide` detienen y guardan la caminata. La limpieza del controlador de un personaje no puede guardar las coordenadas del siguiente personaje.
 
 `useWorld` mantiene la última partida confirmada en una referencia y aplica las actualizaciones funcionales en orden, aunque React agrupe varios eventos. El repositorio se escribe durante la acción, sin esperar a un efecto que podría no ejecutarse al cerrar o recargar. Los componentes conservan el mismo contrato inyectado; si el navegador impide guardar se mantiene la sesión en memoria y aparece el aviso existente.
+
+## Interrupciones del arrastre de personajes
+
+`DraggableEntity` conserva el último punto provisional en una referencia, incluso si React aún no dibujó ese fotograma. El callback opcional `onCancel` permite a los personajes confirmar ese punto ante `pointercancel`, pérdida de captura, cambios de tamaño, pérdida de foco y salida de página. La composición conecta esa interrupción con `placeActor`, que guarda y coloca al personaje sin activar puertas. Los objetos y muebles mantienen la cancelación de su cambio provisional. El sensor compartido también escucha `pagehide`, para cerrar un gesto antes de abandonar el juego.
