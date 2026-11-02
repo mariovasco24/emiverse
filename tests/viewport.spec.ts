@@ -28,8 +28,6 @@ for (const [name, width, height] of [
     await page.screenshot({ path: `/tmp/emiverse-game-${name}.png` })
     await page.getByRole('button', { name: 'Abrir mapa de aventuras' }).click()
     await page.getByRole('button', { name: /Arcoflor/ }).click()
-    await page.getByRole('button', { name: 'Usar objeto', exact: true }).click()
-    await page.getByRole('button', { name: 'Regar con cariño' }).click()
     await expect(page.getByRole('region', { name: 'Escenario del jardín' })).toBeVisible()
     await expect(page.locator('.memory-count')).toContainText('1')
     await page.screenshot({ path: `/tmp/emiverse-garden-${name}.png` })

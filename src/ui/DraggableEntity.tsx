@@ -15,6 +15,9 @@ export type DraggableProps<Id extends string> = {
   sceneRef: RefObject<HTMLDivElement | null>
   selected: boolean
   disabled: boolean
+  draggable?: boolean
+  constrainPoint?: typeof constrainObject
+  onActivate?: (id: Id) => void
   kind?: 'object' | 'character'
   elevateSelection?: boolean
   depthOffset?: number
@@ -34,6 +37,9 @@ export default function DraggableEntity<Id extends string>({
   sceneRef,
   selected,
   disabled,
+  draggable = true,
+  constrainPoint = constrainObject,
+  onActivate,
   depthOffset = 10,
   className = '',
   style,
@@ -65,9 +71,9 @@ export default function DraggableEntity<Id extends string>({
     observer.observe(scene)
     return () => observer.disconnect()
   }, [sceneRef, onBusy])
-  const displayed = constrainObject(preview || point, geometry.item, geometry.scene)
+  const displayed = constrainPoint(preview || point, geometry.item, geometry.scene)
   const movedPoint = (dx: number, dy: number) =>
-    constrainObject(
+    constrainPoint(
       {
         x: origin.current.x + (dx / geometry.scene.width) * 100,
         y: origin.current.y + (dy / geometry.scene.height) * 100,
@@ -79,16 +85,19 @@ export default function DraggableEntity<Id extends string>({
     {
       consumePointerClick: true,
       start() {
+        if (!draggable) return
         origin.current = displayed
         onSelect(id)
         onBusy(true)
       },
       move(g) {
+        if (!draggable) return
         setDragging(true)
         setPreview(movedPoint(g.dx, g.dy))
       },
       end(g) {
-        if (g.moved) onDrop(id, movedPoint(g.dx, g.dy))
+        if (draggable && g.moved) onDrop(id, movedPoint(g.dx, g.dy))
+        if (!draggable && !g.moved) onActivate?.(id)
         setPreview(null)
         setDragging(false)
         onBusy(false)
@@ -101,6 +110,7 @@ export default function DraggableEntity<Id extends string>({
     },
     disabled,
   )
+  useEffect(() => gesture.cancel(), [draggable])
   return (
     <button
       ref={ref}
@@ -111,6 +121,7 @@ export default function DraggableEntity<Id extends string>({
       data-actor={kind === 'character' ? id : undefined}
       data-x={displayed.x.toFixed(2)}
       data-y={displayed.y.toFixed(2)}
+      data-draggable={draggable}
       style={{
         ...style,
         left: `${displayed.x}%`,
@@ -124,7 +135,10 @@ export default function DraggableEntity<Id extends string>({
       aria-label={`Seleccionar ${label}`}
       aria-pressed={selected}
       onClick={() => {
-        if (!disabled) onSelect(id)
+        if (!disabled) {
+          if (draggable) onSelect(id)
+          else onActivate?.(id)
+        }
       }}
       onKeyDown={(e) => {
         const step = e.shiftKey ? 5 : 2
@@ -139,12 +153,12 @@ export default function DraggableEntity<Id extends string>({
           onSelect(null)
           return
         }
-        if (selected && delta[e.key]) {
+        if (draggable && selected && delta[e.key]) {
           e.preventDefault()
           e.stopPropagation()
           onDrop(
             id,
-            constrainObject(
+            constrainPoint(
               { x: displayed.x + delta[e.key].x, y: displayed.y + delta[e.key].y },
               geometry.item,
               geometry.scene,

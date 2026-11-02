@@ -25,6 +25,16 @@ export function useCharacterMovement({
   const constrainRef = useRef(constrain)
   constrainRef.current = constrain
   useEffect(() => {
+    const current = positionRef.current
+    const bounded = constrainRef.current(current.x, current.y)
+    if (bounded.x !== current.x || bounded.y !== current.y) {
+      positionRef.current = bounded
+      setPosition(bounded)
+    }
+    if (destination.current)
+      destination.current = constrainRef.current(destination.current.x, destination.current.y)
+  })
+  useEffect(() => {
     if (blocked) {
       keys.current.clear()
       destination.current = null

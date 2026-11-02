@@ -4,6 +4,8 @@ import {
   ArrowRight,
   CircleHelp,
   Maximize,
+  Move,
+  Check,
   Map,
   Gamepad2,
   Palette,
@@ -35,6 +37,7 @@ import { useCharacterMovement } from './application/useCharacterMovement'
 import { localWorldRepository } from './infrastructure/LocalWorldRepository'
 import MovableCharacter from './features/room/MovableCharacter'
 import { actorDefault, guestLeo } from './domain/cast'
+import { FLOOR_START, isFloorPoint } from './domain/movement'
 import { rooms, roomDoors, type RoomId } from './domain/house'
 import { useHouseNavigation } from './application/useHouseNavigation'
 import { HouseNavigation, RoomDoors } from './features/house/HouseNavigation'
@@ -65,7 +68,6 @@ export default function App() {
       const entry = constrainCharacter(door.entry.x, door.entry.y)
       setPosition(entry)
       destination.current = null
-      setInteraction(null)
       setSelectedObject(null)
       setSave((s) => ({
         ...s,
@@ -84,7 +86,6 @@ export default function App() {
   const [draft, setDraft] = useState<Character | null>(null)
   const [help, setHelp] = useState(false)
   const [memory, setMemory] = useState(false)
-  const [interaction, setInteraction] = useState<ObjectId | null>(null)
   const [toast, setToast] = useState('')
   const [sound, setSound] = useState(false)
   const [music, setMusic] = useState(false)
@@ -95,23 +96,18 @@ export default function App() {
   const [sceneSize, setSceneSize] = useState({ width: 1200, height: 760 })
   const [playerMinY, setPlayerMinY] = useState(5)
   const [selectedObject, setSelectedObject] = useState<ItemId | null>(null)
+  const [arranging, setArranging] = useState(false)
+  const [openFurniture, setOpenFurniture] = useState<Partial<Record<FurnitureId, boolean>>>({})
   const [manipulating, setManipulating] = useState(false)
   const [closetOpen, setClosetOpen] = useState(false)
   const character = save.characters.find((c) => c.id === save.selected)!
-  const modalBlocked =
-    editor ||
-    help ||
-    interaction !== null ||
-    memory ||
-    mapOpen ||
-    closetOpen ||
-    !!navigation.transition
+  const modalBlocked = editor || help || memory || mapOpen || closetOpen || !!navigation.transition
   const blocked = modalBlocked || manipulating
   const constrainCharacter = (x: number, y: number) => {
     const point = clampPosition(x, y)
     return {
       x: Math.max(playerInset, Math.min(100 - playerInset, point.x)),
-      y: Math.max(playerMinY, point.y),
+      y: Math.max(FLOOR_START, playerMinY, point.y),
     }
   }
   const { position, setPosition, walking, destination } = useCharacterMovement({
@@ -152,11 +148,11 @@ export default function App() {
   }, [])
   useEffect(() => {
     if (
-      (editor || help || memory || mapOpen || closetOpen || interaction || manipulating) &&
+      (editor || help || memory || mapOpen || closetOpen || manipulating) &&
       !navigation.transition
     )
       navigation.cancel()
-  }, [editor, help, memory, mapOpen, closetOpen, interaction, manipulating])
+  }, [editor, help, memory, mapOpen, closetOpen, manipulating])
   useAmbientMusic(sound, music, blocked)
   function persistActor(id: string, point: Point) {
     setSave((s) => ({
@@ -243,20 +239,6 @@ export default function App() {
       setSound(true)
     }
     if (id === 'art') setPainting((p) => (p + 1) % 3)
-    setInteraction(null)
-    setToast(
-      id === 'plant'
-        ? '¡Arcoflor floreció gracias a ti! +1 recuerdo'
-        : id === 'pet'
-          ? '¡Nubi está feliz! Gracias por cuidarlo. +1 recuerdo'
-          : id === 'music'
-            ? music
-              ? 'La música descansa por un ratito.'
-              : '¡Tu casa se llena de música!'
-            : id === 'art'
-              ? '¡Una nueva obra de arte, hecha por ti!'
-              : '¡Encontraste una corona! Ya puedes ponértela en el vestidor.',
-    )
   }
   function changeScene(next: RoomId) {
     setHint(false)
@@ -265,7 +247,10 @@ export default function App() {
   }
   function visitItem(item: { id: ItemId; room: RoomId }) {
     setMapOpen(false)
-    navigation.navigate(item.room, () => selectObject(item.id))
+    navigation.navigate(item.room, () => {
+      if (arranging) selectObject(item.id)
+      else activateObject(item.id)
+    })
   }
   const selectedPoint = selectedObject
     ? save.objectPositions[selectedObject] ||
@@ -282,18 +267,21 @@ export default function App() {
   function placeObject(id: ItemId, point: Point) {
     setSave((s) => ({ ...s, objectPositions: { ...s.objectPositions, [id]: point } }))
   }
-  function resetObject() {
-    if (!selectedObject) return
-    setSave((s) => {
-      const next = { ...s.objectPositions }
-      delete next[selectedObject]
-      return { ...s, objectPositions: next }
-    })
+  function activateObject(id: ItemId) {
+    navigation.cancel()
+    destination.current = null
+    setHint(false)
+    setSelectedObject(null)
+    if (id === 'wardrobe') setClosetOpen(true)
+    else if (objects.some((o) => o.id === id)) discover(id as ObjectId)
+    else if (id === 'fridge' || id === 'nightstand')
+      setOpenFurniture((open) => ({ ...open, [id]: !open[id] }))
   }
-  function useObject() {
-    if (selectedObject === 'wardrobe') setClosetOpen(true)
-    else if (objects.some((o) => o.id === selectedObject))
-      setInteraction(selectedObject as ObjectId)
+  function toggleArranging() {
+    navigation.cancel()
+    destination.current = null
+    setSelectedObject(null)
+    setArranging((value) => !value)
   }
   function wear(id: GarmentId) {
     const garment = garments.find((g) => g.id === id)!
@@ -340,6 +328,7 @@ export default function App() {
       className="world-app game-screen"
       data-travelling={navigation.travelling}
       data-transition={!!navigation.transition}
+      data-arranging={arranging}
     >
       <main
         className={`game-viewport ${navigation.transition ? `room-enter-${navigation.transition.side}` : ''}`}
@@ -354,14 +343,16 @@ export default function App() {
           data-room={room}
           onPointerDown={(e) => {
             if (blocked || e.target !== e.currentTarget) return
+            const r = e.currentTarget.getBoundingClientRect()
+            const target = {
+              x: ((e.clientX - r.left) / r.width) * 100,
+              y: ((e.clientY - r.top) / r.height) * 100,
+            }
+            if (!isFloorPoint(target)) return
             navigation.cancel()
             setHint(false)
             setSelectedObject(null)
-            const r = e.currentTarget.getBoundingClientRect()
-            destination.current = constrainCharacter(
-              ((e.clientX - r.left) / r.width) * 100,
-              ((e.clientY - r.top) / r.height) * 100,
-            )
+            destination.current = constrainCharacter(target.x, target.y)
           }}
         >
           <Scenery room={room} height={sceneHeight} />
@@ -378,6 +369,8 @@ export default function App() {
                   sceneRef={sceneRef}
                   selected={selectedObject === item.id}
                   disabled={modalBlocked}
+                  draggable={arranging}
+                  onActivate={activateObject}
                   onSelect={selectObject}
                   onDrop={placeObject}
                   onBusy={setManipulating}
@@ -385,7 +378,7 @@ export default function App() {
                   className="movable-furniture"
                   style={{ width: `${layout.width}%`, aspectRatio: layout.ratio }}
                 >
-                  <FurnitureArt id={item.id} />
+                  <FurnitureArt id={item.id} open={openFurniture[item.id]} />
                   <span className="object-label">{item.label}</span>
                 </MovableObject>
               )
@@ -404,6 +397,8 @@ export default function App() {
                 sceneRef={sceneRef}
                 selected={selectedObject === o.id}
                 disabled={modalBlocked}
+                draggable={arranging}
+                onActivate={activateObject}
                 onSelect={selectObject}
                 onDrop={placeObject}
                 onBusy={setManipulating}
@@ -422,7 +417,9 @@ export default function App() {
                       <b>♪</b>
                     </span>
                   ) : (
-                    <span className="gift-box">✦</span>
+                    <span className={`gift-box ${save.collected.includes('gift') ? 'opened' : ''}`}>
+                      {save.collected.includes('gift') ? '♛' : '✦'}
+                    </span>
                   )}
                 </span>
                 <span className="object-label">
@@ -534,6 +531,15 @@ export default function App() {
         </div>
         <div className="game-tools">
           <GameButton
+            className="move-button"
+            onPress={toggleArranging}
+            aria-label="Mover objetos"
+            aria-pressed={arranging}
+          >
+            {arranging ? <Check /> : <Move />}
+            <span>{arranging ? 'Listo' : 'Mover'}</span>
+          </GameButton>
+          <GameButton
             className="map-button"
             onPress={() => setMapOpen(true)}
             aria-label="Abrir mapa de aventuras"
@@ -555,7 +561,7 @@ export default function App() {
           </GameButton>
         </div>
       </div>
-      {selectedObject && !manipulating && !modalBlocked && (
+      {arranging && selectedObject && !manipulating && !modalBlocked && (
         <div
           className="object-toolbar"
           role="toolbar"
@@ -565,12 +571,6 @@ export default function App() {
           <strong>
             {[...objects, ...furniture].find((item) => item.id === selectedObject)!.label}
           </strong>
-          {(selectedObject === 'wardrobe' || objects.some((o) => o.id === selectedObject)) && (
-            <GameButton onPress={useObject} aria-label="Usar objeto">
-              {selectedObject === 'wardrobe' ? 'Abrir armario' : 'Usar'}
-            </GameButton>
-          )}
-          <GameButton onPress={resetObject}>Volver a su lugar</GameButton>
           <GameButton onPress={() => setSelectedObject(null)} aria-label="Soltar objeto">
             <X size={18} />
           </GameButton>
@@ -660,10 +660,11 @@ export default function App() {
               el dedo. Toca el suelo para que camine hasta allí. Puedes mover a todos, incluido Leo.
             </p>
             <p>
-              <b>03 · Dale vida a tu mundo</b>Toca un objeto para seleccionarlo y arrástralo para
-              moverlo. Pulsa «Usar» para interactuar. También puedes mover los muebles y abrir el
-              armario para ordenar y usar tu ropa. Recorre casita, cocina, dormitorio y jardín
-              tocando las puertas. El personaje camina hasta ellas y la cámara se desliza al cruzar.
+              <b>03 · Dale vida a tu mundo</b>Toca un objeto para activarlo o el armario para
+              abrirlo. Pulsa «Mover» para reorganizar objetos y muebles arrastrándolos; pulsa
+              «Listo» para seguir jugando. Los personajes caminan por el suelo y no pueden subir por
+              las paredes. Recorre casita, cocina, dormitorio y jardín tocando las puertas. El
+              personaje camina hasta ellas y la cámara se desliza al cruzar.
             </p>
             <p>
               <b>04 · Vuelve cuando quieras</b>Tus personajes y recuerdos se guardan en este
@@ -672,63 +673,6 @@ export default function App() {
           </div>
           <GameButton className="world-primary wide" onPress={() => setHelp(false)}>
             ¡Vamos a imaginar! <Sparkles size={17} />
-          </GameButton>
-        </WorldDialog>
-      )}
-      {interaction && (
-        <WorldDialog
-          title={
-            {
-              plant: 'Una flor con mucha sed',
-              pet: '¡Hola! Soy Nubi',
-              music: 'Ponle ritmo a tu historia',
-              art: 'Todos llevamos un artista dentro',
-              gift: 'Una sorpresa para ti',
-            }[interaction]
-          }
-          onClose={() => setInteraction(null)}
-        >
-          <div className="interaction-art">
-            {interaction === 'pet' ? (
-              <Pet fed={save.fed} />
-            ) : (
-              {
-                plant: save.watered ? '🌸' : '🪴',
-                music: '🎶',
-                art: ['🌈', '🌻', '🦋'][painting],
-                gift: '🎁',
-              }[interaction]
-            )}
-          </div>
-          <p className="interaction-copy">
-            {
-              {
-                plant: save.watered
-                  ? 'Arcoflor ya está feliz. ¡Un poquito de cariño nunca sobra!'
-                  : 'Dicen que las arcoflores florecen cuando alguien las cuida. ¿Lo intentamos?',
-                pet: save.fed
-                  ? '¡Qué rico! Nubi quiere otro mimo de su persona favorita.'
-                  : 'Soy una nubita con patitas. ¿Me das un bocadito y un poco de cariño?',
-                music:
-                  'Una melodía original para bailar por toda la casita. Activa el sonido para escucharla.',
-                art: 'Toca para pintar. Cada vez aparece una nueva creación llena de color.',
-                gift: save.collected.includes('gift')
-                  ? 'Tu corona ya está en el vestidor. ¡Póntela y brilla!'
-                  : 'Dentro hay una corona de imaginación. ¡Es para ti!',
-              }[interaction]
-            }
-          </p>
-          <GameButton className="world-primary wide" onPress={() => discover(interaction)}>
-            {
-              {
-                plant: 'Regar con cariño 💧',
-                pet: save.fed ? 'Darle un mimo ♡' : 'Darle un bocadito ♡',
-                music: music ? 'Pausar la música' : '¡Que suene la música!',
-                art: 'Pintar mi obra ✦',
-                gift: save.collected.includes('gift') ? '¡Qué bonito!' : 'Abrir mi sorpresa ✦',
-              }[interaction]
-            }
-            <Sparkles size={17} />
           </GameButton>
         </WorldDialog>
       )}

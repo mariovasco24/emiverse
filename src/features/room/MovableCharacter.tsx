@@ -2,6 +2,7 @@ import { Heart } from 'lucide-react'
 import Avatar from '../../Character'
 import DraggableEntity, { type DraggableProps } from '../../ui/DraggableEntity'
 import type { Character } from '../../domain/world'
+import { constrainCharacterPosition } from '../../domain/movement'
 type Props = Omit<DraggableProps<string>, 'children' | 'label' | 'id'> & {
   character: Character
   walking: boolean
@@ -22,6 +23,7 @@ export default function MovableCharacter({
       label={character.name}
       selected={selected}
       kind="character"
+      constrainPoint={constrainCharacterPosition}
       elevateSelection={elevateSelection}
       depthOffset={selected && elevateSelection ? 1 : -20}
       className={`world-player movable-character ${selected ? 'actor-active' : ''} ${guest ? 'guest-character' : ''}`}

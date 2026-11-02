@@ -32,9 +32,9 @@ Esto da responsabilidades pequeñas y contratos acotados. Un guardado remoto fut
 
 ## Selección y distribución
 
-Tocar un objeto lo selecciona. Arrastrar mueve una vista provisional; solo al soltar se confirma y persiste. Cancelar, perder el foco o cambiar el tamaño durante el gesto descarta la posición provisional. El movimiento del personaje se pausa mientras se manipula un objeto. Las flechas del teclado mueven el objeto enfocado; las flechas o WASD fuera de ese foco mueven al personaje.
+En modo de juego, tocar activa el objeto directamente o abre el armario, sin confirmación. El botón Mover habilita la selección y el arrastre de objetos y muebles; Listo vuelve al juego. Arrastrar mueve una vista provisional; solo al soltar se confirma y persiste. Cancelar, perder el foco o cambiar el tamaño durante el gesto descarta la posición provisional. El movimiento del personaje se pausa mientras se manipula un objeto. Las flechas del teclado mueven el objeto enfocado; las flechas o WASD fuera de ese foco mueven al personaje.
 
-Las coordenadas de objetos se guardan como porcentajes del escenario. Los límites tienen en cuenta el tamaño visible del objeto. Al cambiar de orientación se adapta la vista sin sobrescribir la distribución guardada. «Volver a su lugar» restaura solo el objeto seleccionado. Desde Aventuras también pueden seleccionarse los muebles si quedaron detrás de un control.
+Las coordenadas de objetos se guardan como porcentajes del escenario. Los límites tienen en cuenta el tamaño visible del objeto. Al cambiar de orientación se adapta la vista sin sobrescribir la distribución guardada. Desde Aventuras también pueden seleccionarse los muebles si quedaron detrás de un control. No hay acción de restaurar posiciones. Fuera del modo Mover, el mapa ejecuta directamente la acción del destino.
 
 En el armario se intercambian dos espacios de forma inmutable, conservando todas las prendas. Arrastrar y tocar origen/destino ejecutan la misma regla. La ropa se puede ordenar independientemente de vestir al personaje; la corona requiere encontrar la sorpresa.
 
@@ -57,3 +57,9 @@ La selección desde la bandeja hace accesible un personaje que esté detrás de 
 `features/house` presenta puertas, selección de destino, escenarios y animación. La salida conserva una instantánea visual inerte del escenario anterior: no duplica controladores, eventos, identificadores vivos de personajes ni referencias SVG. La duración respeta movimiento reducido. La UI queda bloqueada solo durante el deslizamiento para evitar acciones sobre dos habitaciones a la vez.
 
 El guardado añade cocina y dormitorio a las coordenadas de personajes y conserva sala/jardín, muebles y armario existentes. Se guarda la habitación actual al cruzar. El personaje entra por la puerta opuesta; regresar caminando actualiza su posición de forma natural, mientras que los demás mantienen sus posiciones guardadas.
+
+## Suelo transitable
+
+`domain/movement.ts` distingue pared y suelo y limita las coordenadas de los personajes. El toque sobre una pared se ignora; el controlador de caminar limita teclado y destinos, y `MovableCharacter` inyecta el mismo límite en `DraggableEntity` para que el arrastre tampoco permita volar. Las posiciones antiguas y los cambios de tamaño se ajustan visualmente a esos límites sin borrar la partida. Los muebles conservan su propia restricción: los cuadros y plantas colgantes sí pueden organizarse sobre la pared.
+
+`DraggableEntity` separa activación y arrastre mediante callbacks. Los gestos consumen su clic de compatibilidad para evitar que un toque ejecute dos veces una acción o abra accidentalmente un diálogo después de arrastrar. Un arrastre fuera del modo Mover no activa ni desplaza el objeto.

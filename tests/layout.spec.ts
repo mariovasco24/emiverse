@@ -11,10 +11,9 @@ async function drag(
   await page.mouse.move(box.x + box.width / 2 + dx, box.y + box.height / 2 + dy, { steps: 10 })
   await page.mouse.up()
 }
-test('seleccionar, mover y guardar objetos y muebles; usar sigue siendo una acción explícita', async ({
-  page,
-}) => {
+test('mover objetos y muebles solo en modo Mover; tocar activa directamente', async ({ page }) => {
   await page.goto('/emiverse/')
+  await page.getByRole('button', { name: 'Mover objetos', exact: true }).click()
   const pet = page.getByRole('button', { name: 'Seleccionar Nubi', exact: true })
   const initialX = Number(await pet.getAttribute('data-x'))
   const playerX = await page.locator('.actor-active').getAttribute('data-x')
@@ -29,19 +28,25 @@ test('seleccionar, mover y guardar objetos y muebles; usar sigue siendo una acci
   await page.reload()
   await expect(pet).toHaveAttribute('data-x', movedX.toFixed(2))
   await pet.click()
-  await page.getByRole('button', { name: 'Usar objeto', exact: true }).click()
-  await page.getByRole('button', { name: 'Darle un bocadito' }).click()
+  expect(
+    await page.evaluate(() => JSON.parse(localStorage.getItem('emiverse-world-v1')!).fed),
+  ).toBe(true)
+  await expect(page.getByRole('dialog')).toHaveCount(0)
+  await page.getByRole('button', { name: 'Mover objetos', exact: true }).click()
   const sofa = page.getByRole('button', { name: 'Seleccionar Sofá', exact: true })
   const sofaX = Number(await sofa.getAttribute('data-x'))
   await drag(page, sofa, 120, 50)
   expect(Number(await sofa.getAttribute('data-x'))).toBeGreaterThan(sofaX + 5)
-  await page.getByRole('button', { name: 'Volver a su lugar', exact: true }).click()
-  await expect(sofa).toHaveAttribute('data-x', sofaX.toFixed(2))
+  const placed = await sofa.getAttribute('data-x')
+  await page.reload()
+  await expect(sofa).toHaveAttribute('data-x', placed!)
+  await expect(page.getByRole('button', { name: 'Volver a su lugar', exact: true })).toHaveCount(0)
 })
 test('cancelar el gesto no guarda la posición provisional y las flechas mueven el objeto enfocado', async ({
   page,
 }) => {
   await page.goto('/emiverse/')
+  await page.getByRole('button', { name: 'Mover objetos', exact: true }).click()
   const item = page.getByRole('button', { name: 'Seleccionar Sorpresa', exact: true })
   const before = await item.getAttribute('data-x')
   const box = (await item.boundingBox())!
@@ -63,15 +68,16 @@ test('cancelar el gesto no guarda la posición provisional y las flechas mueven 
   await page.keyboard.press('ArrowLeft')
   expect(Number(await item.getAttribute('data-x'))).toBeLessThan(Number(before))
 })
-test('el personaje recorre la casa más allá del área restringida anterior', async ({ page }) => {
+test('el personaje camina por todo el suelo sin subir por la pared', async ({ page }) => {
   await page.goto('/emiverse/')
+  await page.getByRole('button', { name: 'Mover objetos', exact: true }).click()
   await page.getByRole('button', { name: 'Cerrar pista' }).click()
   await page.keyboard.down('ArrowUp')
   await expect
     .poll(async () => Number(await page.locator('.actor-active').getAttribute('data-y')), {
       timeout: 5000,
     })
-    .toBeLessThan(44)
+    .toBeCloseTo(51, 1)
   await page.keyboard.up('ArrowUp')
   await page.keyboard.down('ArrowDown')
   await expect
@@ -86,6 +92,7 @@ test.describe('entrada táctil', () => {
   test.use({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true })
   test('arrastrar con el dedo y ordenar el armario sin perder ropa', async ({ page }) => {
     await page.goto('/emiverse/')
+    await page.getByRole('button', { name: 'Mover objetos', exact: true }).click()
     const cdp = await page.context().newCDPSession(page)
     const pet = page.getByRole('button', { name: 'Seleccionar Nubi', exact: true })
     await pet.tap()
@@ -102,9 +109,9 @@ test.describe('entrada táctil', () => {
     })
     await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] })
     await expect.poll(async () => Number(await pet.getAttribute('data-x'))).toBeLessThan(before - 5)
+    await page.getByRole('button', { name: 'Mover objetos', exact: true }).tap()
     await page.getByRole('button', { name: 'Abrir mapa de aventuras' }).tap()
     await page.getByRole('button', { name: 'Armario', exact: true }).tap()
-    await page.getByRole('button', { name: 'Usar objeto', exact: true }).tap()
     const source = page.getByRole('button', { name: 'Espacio 1: Camiseta rosa', exact: true })
     const target = page.getByRole('button', { name: 'Espacio 6: vacío', exact: true })
     const a = (await source.boundingBox())!,
@@ -138,6 +145,7 @@ test('girar el dispositivo durante un arrastre descarta solo el cambio provision
 }) => {
   await page.setViewportSize({ width: 390, height: 844 })
   await page.goto('/emiverse/')
+  await page.getByRole('button', { name: 'Mover objetos', exact: true }).click()
   const pet = page.getByRole('button', { name: 'Seleccionar Nubi', exact: true })
   const box = (await pet.boundingBox())!
   await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2)

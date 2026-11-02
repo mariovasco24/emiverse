@@ -1,5 +1,5 @@
 import type { FurnitureId } from '../../domain/layout'
-export default function FurnitureArt({ id }: { id: FurnitureId }) {
+export default function FurnitureArt({ id, open = false }: { id: FurnitureId; open?: boolean }) {
   switch (id) {
     case 'bed':
       return (
@@ -31,6 +31,7 @@ export default function FurnitureArt({ id }: { id: FurnitureId }) {
             <path d="M14 131v11m87-11v11" strokeWidth="7" />
             <rect x="5" y="62" width="105" height="70" rx="8" fill="#edb4b7" />
             <path d="M8 97h99" />
+            {open && <rect x="9" y="66" width="97" height="28" rx="4" fill="#79566a" />}
             <circle cx="57" cy="84" r="4" fill="#ffdea0" />
             <circle cx="57" cy="113" r="4" fill="#ffdea0" />
             <path d="M40 61h38l-8-7H49Z" fill="#e9ce9c" />
@@ -75,6 +76,16 @@ export default function FurnitureArt({ id }: { id: FurnitureId }) {
             />
             <path d="m92 179 10-17 14 23" fill="none" stroke="#c8a4ba" />
             <circle cx="103" cy="139" r="7" fill="#e6a4b5" />
+            {open && (
+              <g data-open="true">
+                <rect x="18" y="118" width="134" height="162" rx="8" fill="#f7f2d7" />
+                <path d="M20 173h130m-130 54h130" stroke="#b6d4ca" strokeWidth="7" />
+                <rect x="37" y="137" width="24" height="30" rx="5" fill="#dfacbc" />
+                <rect x="94" y="128" width="22" height="40" rx="4" fill="#c5dcc8" />
+                <ellipse cx="75" cy="213" rx="30" ry="10" fill="#eacb80" />
+                <path d="M13 114 2 131v145l11 9Z" fill="#b6d4ca" />
+              </g>
+            )}
           </g>
         </svg>
       )

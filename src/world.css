@@ -496,6 +496,29 @@ body:has(.game-screen) {
     0 6px 0 #a07887,
     inset 0 4px #e6d3f0;
 }
+.game-tools .move-button {
+  position: fixed;
+  left: 24px;
+  bottom: 40px;
+  background: #f6d28e;
+  color: #a77c46;
+}
+.game-tools .move-button[aria-pressed='true'] {
+  background: #b6dbd0;
+  color: #407f70;
+  border-color: #5d9485;
+}
+.movable-object[data-draggable='false'] {
+  cursor: pointer;
+}
+.gift-box.opened {
+  color: #fff1b1;
+  background: #bf91c0;
+}
+.gift-box.opened::before,
+.gift-box.opened::after {
+  display: none;
+}
 .game-tools .dress-button {
   width: 88px;
   height: 88px;
@@ -2140,5 +2163,29 @@ body:has(.game-screen) {
   .room-enter-left,
   .room-enter-right {
     animation: none;
+  }
+}
+/* Keep Mover separate from the three play tools so the floor remains reachable. */
+@media (max-width: 950px) {
+  .game-tools .move-button {
+    left: 20px;
+    bottom: 30px;
+  }
+}
+@media (orientation: portrait) {
+  .game-tools .move-button {
+    bottom: 130px;
+  }
+}
+@media (max-width: 520px) {
+  .game-tools .move-button {
+    left: 12px;
+    bottom: calc(83px + env(safe-area-inset-bottom));
+  }
+}
+@media (orientation: landscape) and (max-height: 550px) {
+  .game-tools .move-button {
+    left: 13px;
+    bottom: 18px;
   }
 }
