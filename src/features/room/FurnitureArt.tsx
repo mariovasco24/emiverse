@@ -1,6 +1,123 @@
 import type { FurnitureId } from '../../domain/layout'
 export default function FurnitureArt({ id }: { id: FurnitureId }) {
   switch (id) {
+    case 'bed':
+      return (
+        <svg viewBox="0 0 460 300" aria-hidden="true">
+          <g stroke="#79566a" strokeWidth="4" strokeLinejoin="round">
+            <path d="M24 270v23m412-23v23" strokeWidth="13" />
+            <rect x="7" y="9" width="445" height="264" rx="35" fill="#d5a5bb" />
+            <rect x="20" y="23" width="419" height="235" rx="26" fill="#f5e1cb" />
+            <rect x="42" y="38" width="165" height="80" rx="23" fill="#fff0d2" />
+            <rect x="250" y="38" width="165" height="80" rx="23" fill="#fff0d2" />
+            <path d="M20 126h419v105q0 27-27 27H47q-27 0-27-27Z" fill="#bca5d3" />
+            <path d="M24 139h411" stroke="#e5d3ec" strokeWidth="12" />
+            {[85, 180, 275, 370].map((x) => (
+              <path
+                key={x}
+                d="m0-13 4 8 10 2-8 6 2 10-8-5-8 5 2-10-8-6 10-2Z"
+                transform={`translate(${x} 195)`}
+                fill="#ffdfa2"
+                strokeWidth="2"
+              />
+            ))}
+          </g>
+        </svg>
+      )
+    case 'nightstand':
+      return (
+        <svg viewBox="0 0 115 145" aria-hidden="true">
+          <g stroke="#79566a" strokeWidth="3">
+            <path d="M14 131v11m87-11v11" strokeWidth="7" />
+            <rect x="5" y="62" width="105" height="70" rx="8" fill="#edb4b7" />
+            <path d="M8 97h99" />
+            <circle cx="57" cy="84" r="4" fill="#ffdea0" />
+            <circle cx="57" cy="113" r="4" fill="#ffdea0" />
+            <path d="M40 61h38l-8-7H49Z" fill="#e9ce9c" />
+            <path d="M59 53V25" />
+            <path d="m39 4-7 25q27 12 54 0L77 4Z" fill="#e4b7d3" />
+          </g>
+        </svg>
+      )
+    case 'desk':
+      return (
+        <svg viewBox="0 0 245 210" aria-hidden="true">
+          <g stroke="#79566a" strokeWidth="3.5" strokeLinejoin="round">
+            <path d="M20 113v88m206-88v88" strokeWidth="12" />
+            <rect x="3" y="94" width="238" height="23" rx="8" fill="#f3c8ab" />
+            <rect x="150" y="117" width="74" height="65" rx="7" fill="#b3cbd2" />
+            <circle cx="188" cy="146" r="4" fill="#ffe4a6" />
+            <path d="M32 82h70v12H32Z" fill="#c8b6df" />
+            <path d="m39 75 25 8 25-8-25-7Z" fill="#fff2d6" />
+            <path d="M194 93V48l-30-24" fill="none" strokeWidth="6" />
+            <path d="m149 18 18-12 28 22-30 17Z" fill="#e6b5c5" />
+            <rect x="114" y="67" width="18" height="27" rx="3" fill="#e5c187" />
+            <path d="m119 66-5-19m12 19 5-21" stroke="#a28bc4" strokeWidth="4" />
+          </g>
+        </svg>
+      )
+    case 'fridge':
+      return (
+        <svg viewBox="0 0 170 305" aria-hidden="true">
+          <g stroke="#6c756e" strokeWidth="4" strokeLinejoin="round">
+            <rect x="5" y="5" width="160" height="290" rx="22" fill="#b6d4ca" />
+            <rect x="14" y="16" width="142" height="91" rx="13" fill="#d2e8d7" />
+            <rect x="14" y="114" width="142" height="170" rx="13" fill="#d2e8d7" />
+            <path d="M31 41v39m0 59v50" strokeWidth="7" strokeLinecap="round" />
+            <rect
+              x="76"
+              y="143"
+              width="56"
+              height="68"
+              rx="5"
+              fill="#fff2c6"
+              transform="rotate(8 76 143)"
+            />
+            <path d="m92 179 10-17 14 23" fill="none" stroke="#c8a4ba" />
+            <circle cx="103" cy="139" r="7" fill="#e6a4b5" />
+          </g>
+        </svg>
+      )
+    case 'counter':
+      return (
+        <svg viewBox="0 0 355 245" aria-hidden="true">
+          <g stroke="#6e766c" strokeWidth="3.5" strokeLinejoin="round">
+            <rect x="5" y="85" width="345" height="150" rx="9" fill="#a5cebe" />
+            <path d="M125 102v131m110-131v131" />
+            <path
+              d="M25 124h75m45 0h65m46 0h70"
+              stroke="#7cae9d"
+              strokeWidth="6"
+              strokeLinecap="round"
+            />
+            <rect x="1" y="66" width="353" height="30" rx="7" fill="#f4dcc1" />
+            <rect x="18" y="71" width="109" height="13" rx="5" fill="#bacbd0" />
+            <path d="M73 67V24q0-23 21-18t16 28" fill="none" strokeWidth="7" />
+            <rect x="218" y="68" width="116" height="17" rx="8" fill="#9c9c9d" />
+            <ellipse cx="275" cy="44" rx="35" ry="26" fill="#e5b1bd" />
+            <path d="M241 38h68m-41-21h17" />
+            <rect x="255" y="154" width="70" height="62" rx="9" fill="#b8dce0" />
+            <path d="m267 167 44 33" stroke="#e4f3df" strokeWidth="5" />
+          </g>
+        </svg>
+      )
+    case 'dining-table':
+      return (
+        <svg viewBox="0 0 250 185" aria-hidden="true">
+          <g stroke="#826070" strokeWidth="4" strokeLinejoin="round">
+            <path d="m51 72-16 101m164-101 16 101" strokeWidth="13" />
+            <ellipse cx="125" cy="68" rx="119" ry="59" fill="#f2c99d" />
+            <ellipse cx="125" cy="60" rx="112" ry="51" fill="#ffe1b1" />
+            <ellipse cx="127" cy="63" rx="39" ry="24" fill="#f5ead3" />
+            <ellipse cx="127" cy="61" rx="26" ry="15" fill="#edb69b" />
+            <circle cx="117" cy="59" r="3" fill="#a17b68" />
+            <circle cx="137" cy="61" r="3" fill="#a17b68" />
+            <path d="M48 41v-23h30v23q-15 12-30 0" fill="#c9ddd5" />
+            <path d="M78 23q23-5 15 13-3 7-15 4" fill="none" />
+          </g>
+        </svg>
+      )
+
     case 'sofa':
       return (
         <svg viewBox="-20 -165 330 205" aria-hidden="true">

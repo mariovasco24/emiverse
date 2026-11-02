@@ -68,15 +68,22 @@ test.describe('táctil', () => {
         .poll(async () => Number(await actor.getAttribute('data-x')))
         .toBeGreaterThan(initial + 3)
     }
-    const home = await page
-      .getByRole('button', { name: 'Seleccionar Leo', exact: true })
-      .getAttribute('data-x')
+    const emilyHome = await page.locator('[data-actor="emily"]').getAttribute('data-x')
     await page.getByRole('button', { name: 'Jardín', exact: true }).tap()
+    await expect(page.locator('.world-scene[data-room="garden"]')).toBeVisible({ timeout: 8000 })
+    await expect(page.locator('.game-screen')).toHaveAttribute('data-travelling', 'false')
     await expect(page.locator('[data-actor]')).toHaveCount(2)
     await page.getByRole('button', { name: 'Casita', exact: true }).tap()
-    await expect(
-      page.getByRole('button', { name: 'Seleccionar Leo', exact: true }),
-    ).toHaveAttribute('data-x', home!)
+    await expect(page.locator('.world-scene[data-room="home"]')).toBeVisible({ timeout: 8000 })
+    await expect(page.locator('.game-screen')).toHaveAttribute('data-travelling', 'false')
+    await expect(page.locator('[data-actor="emily"]')).toHaveAttribute('data-x', emilyHome!)
+    expect(
+      Number(
+        await page
+          .getByRole('button', { name: 'Seleccionar Leo', exact: true })
+          .getAttribute('data-x'),
+      ),
+    ).toBeLessThan(35)
     await page.screenshot({ path: '/tmp/emiverse-touch-cast-mobile.png' })
   })
 })

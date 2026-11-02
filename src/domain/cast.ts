@@ -1,6 +1,7 @@
 import type { Point } from './layout'
 import type { Character } from './world'
-export type RoomId = 'home' | 'garden'
+import { rooms, type RoomId } from './house'
+export type { RoomId } from './house'
 export type CastPositions = Record<RoomId, Record<string, Point>>
 export const guestLeo: Character = {
   id: 'guest-leo',
@@ -27,10 +28,10 @@ export function actorDefault(id: string, characters: Character[]): Point {
   )
 }
 export function readCastPositions(input: unknown, characters: Character[]): CastPositions {
-  const result: CastPositions = { home: {}, garden: {} }
+  const result: CastPositions = { home: {}, garden: {}, kitchen: {}, bedroom: {} }
   if (!input || typeof input !== 'object') return result
   const ids = new Set([...characters.map((c) => c.id), guestLeo.id])
-  for (const room of ['home', 'garden'] as const) {
+  for (const { id: room } of rooms) {
     const positions = (input as Record<string, unknown>)[room]
     if (!positions || typeof positions !== 'object' || Array.isArray(positions)) continue
     for (const [id, point] of Object.entries(positions)) {

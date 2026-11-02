@@ -1,6 +1,10 @@
-type SceneProps = { garden: boolean; height: number }
+import type { RoomId } from './domain/house'
+import InteriorScenery from './features/house/InteriorScenery'
+type SceneProps = { room: RoomId; height: number }
 /** Responsive original room: SVG coordinates preserve each prop's proportions. */
-export default function Scenery({ garden, height: h }: SceneProps) {
+export default function Scenery({ room, height: h }: SceneProps) {
+  if (room === 'kitchen' || room === 'bedroom') return <InteriorScenery room={room} height={h} />
+  const garden = room === 'garden'
   const portrait = h > 1200
   const s = portrait ? 1.55 : 1
   const wall = h * 0.49

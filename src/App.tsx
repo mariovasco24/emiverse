@@ -3,14 +3,12 @@ import {
   ArrowLeft,
   ArrowRight,
   CircleHelp,
-  Home,
   Maximize,
   Map,
   Gamepad2,
   Palette,
   Plus,
   Sparkles,
-  Sprout,
   Star,
   Volume2,
   VolumeX,
@@ -36,7 +34,11 @@ import { useWorld } from './application/useWorld'
 import { useCharacterMovement } from './application/useCharacterMovement'
 import { localWorldRepository } from './infrastructure/LocalWorldRepository'
 import MovableCharacter from './features/room/MovableCharacter'
-import { actorDefault, guestLeo, type RoomId } from './domain/cast'
+import { actorDefault, guestLeo } from './domain/cast'
+import { rooms, roomDoors, type RoomId } from './domain/house'
+import { useHouseNavigation } from './application/useHouseNavigation'
+import { HouseNavigation, RoomDoors } from './features/house/HouseNavigation'
+import RoomTransition, { captureRoom } from './features/house/RoomTransition'
 import GameButton from './ui/GameButton'
 import WorldDialog from './ui/WorldDialog'
 import MovableObject from './features/room/MovableObject'
@@ -47,9 +49,36 @@ import { Pet, Plant } from './features/room/ObjectArt'
 import './world.css'
 export default function App() {
   const { save, setSave, storageBlocked } = useWorld(localWorldRepository)
-  const [garden, setGarden] = useState(false)
-  const room: RoomId = garden ? 'garden' : 'home'
   const [activeActorId, setActiveActorId] = useState(save.selected)
+  const [snapshot, setSnapshot] = useState<HTMLElement | null>(null)
+  const navigation = useHouseNavigation({
+    initialRoom: save.currentRoom,
+    approach: (door) => {
+      setHint(false)
+      setSelectedObject(null)
+      destination.current = constrainCharacter(door.approach.x, door.approach.y)
+    },
+    beforeTransition: (transition) => {
+      if (transition.duration) setSnapshot(captureRoom(sceneRef.current))
+    },
+    enter: (door) => {
+      const entry = constrainCharacter(door.entry.x, door.entry.y)
+      setPosition(entry)
+      destination.current = null
+      setInteraction(null)
+      setSelectedObject(null)
+      setSave((s) => ({
+        ...s,
+        currentRoom: door.to,
+        castPositions: {
+          ...s.castPositions,
+          [door.to]: { ...s.castPositions[door.to], [activeActorId]: entry },
+        },
+      }))
+    },
+  })
+  const room = navigation.room
+  const garden = room === 'garden'
   const cast = [...save.characters, guestLeo]
   const [editor, setEditor] = useState(false)
   const [draft, setDraft] = useState<Character | null>(null)
@@ -69,7 +98,14 @@ export default function App() {
   const [manipulating, setManipulating] = useState(false)
   const [closetOpen, setClosetOpen] = useState(false)
   const character = save.characters.find((c) => c.id === save.selected)!
-  const modalBlocked = editor || help || interaction !== null || memory || mapOpen || closetOpen
+  const modalBlocked =
+    editor ||
+    help ||
+    interaction !== null ||
+    memory ||
+    mapOpen ||
+    closetOpen ||
+    !!navigation.transition
   const blocked = modalBlocked || manipulating
   const constrainCharacter = (x: number, y: number) => {
     const point = clampPosition(x, y)
@@ -80,9 +116,12 @@ export default function App() {
   }
   const { position, setPosition, walking, destination } = useCharacterMovement({
     blocked,
-    identity: activeActorId,
+    identity: `${activeActorId}:${room}`,
     constrain: constrainCharacter,
-    onSettled: (point) => persistActor(activeActorId, point),
+    onSettled: (point) => {
+      persistActor(activeActorId, point)
+      navigation.arrivedAtExit()
+    },
     initialPoint:
       save.castPositions[room][activeActorId] || actorDefault(activeActorId, save.characters),
   })
@@ -111,6 +150,13 @@ export default function App() {
     const timer = setTimeout(() => setHint(false), 7000)
     return () => clearTimeout(timer)
   }, [])
+  useEffect(() => {
+    if (
+      (editor || help || memory || mapOpen || closetOpen || interaction || manipulating) &&
+      !navigation.transition
+    )
+      navigation.cancel()
+  }, [editor, help, memory, mapOpen, closetOpen, interaction, manipulating])
   useAmbientMusic(sound, music, blocked)
   function persistActor(id: string, point: Point) {
     setSave((s) => ({
@@ -120,6 +166,7 @@ export default function App() {
   }
   function selectActor(id: string | null) {
     if (!id) return
+    navigation.cancel()
     setHint(false)
     setSelectedObject(null)
     destination.current = null
@@ -131,7 +178,16 @@ export default function App() {
   }
   function dropActor(id: string, point: Point) {
     persistActor(id, point)
-    if (id === activeActorId) setPosition(point)
+    if (id === activeActorId) {
+      setPosition(point)
+      const door = roomDoors(room).find(
+        (d) =>
+          point.y >= 72 &&
+          point.y <= 94 &&
+          (d.side === 'left' ? point.x <= playerInset + 2 : point.x >= 98 - playerInset),
+      )
+      if (door) navigation.navigate(door.to)
+    }
   }
   function edit(newCharacter = false) {
     if (activeActorId === guestLeo.id && !newCharacter) selectActor(save.selected)
@@ -202,16 +258,14 @@ export default function App() {
               : '¡Encontraste una corona! Ya puedes ponértela en el vestidor.',
     )
   }
-  function changeScene(next: boolean) {
-    persistActor(activeActorId, position)
-    setGarden(next)
-    setPosition(
-      save.castPositions[next ? 'garden' : 'home'][activeActorId] ||
-        actorDefault(activeActorId, save.characters),
-    )
-    destination.current = null
-    setInteraction(null)
+  function changeScene(next: RoomId) {
+    setHint(false)
     setSelectedObject(null)
+    navigation.navigate(next)
+  }
+  function visitItem(item: { id: ItemId; room: RoomId }) {
+    setMapOpen(false)
+    navigation.navigate(item.room, () => selectObject(item.id))
   }
   const selectedPoint = selectedObject
     ? save.objectPositions[selectedObject] ||
@@ -220,6 +274,8 @@ export default function App() {
         : furnitureLayout(selectedObject as FurnitureId, sceneSize.width, sceneSize.height).point)
     : null
   function selectObject(id: ItemId | null) {
+    navigation.cancel()
+    destination.current = null
     setHint(false)
     setSelectedObject(id)
   }
@@ -280,15 +336,25 @@ export default function App() {
       </div>
     )
   return (
-    <div className="world-app game-screen">
-      <main className="game-viewport" aria-label="EmiVerse, mundo de juego">
+    <div
+      className="world-app game-screen"
+      data-travelling={navigation.travelling}
+      data-transition={!!navigation.transition}
+    >
+      <main
+        className={`game-viewport ${navigation.transition ? `room-enter-${navigation.transition.side}` : ''}`}
+        style={{ animationDuration: `${navigation.transition?.duration || 0}ms` }}
+        aria-label="EmiVerse, mundo de juego"
+      >
         <div
           ref={sceneRef}
           className={`world-scene ${garden ? 'garden-scene' : ''}`}
           role="region"
-          aria-label={garden ? 'Escenario del jardín' : 'Escenario de la casita'}
+          aria-label={rooms.find((r) => r.id === room)!.region}
+          data-room={room}
           onPointerDown={(e) => {
             if (blocked || e.target !== e.currentTarget) return
+            navigation.cancel()
             setHint(false)
             setSelectedObject(null)
             const r = e.currentTarget.getBoundingClientRect()
@@ -298,9 +364,9 @@ export default function App() {
             )
           }}
         >
-          <Scenery garden={garden} height={sceneHeight} />
+          <Scenery room={room} height={sceneHeight} />
           {furniture
-            .filter((item) => item.garden === garden)
+            .filter((item) => item.room === room)
             .map((item) => {
               const layout = furnitureLayout(item.id, sceneSize.width, sceneSize.height)
               return (
@@ -325,7 +391,7 @@ export default function App() {
               )
             })}
           {objects
-            .filter((o) => o.garden === garden)
+            .filter((o) => o.room === room)
             .map((o) => (
               <MovableObject
                 key={o.id}
@@ -365,6 +431,11 @@ export default function App() {
                 </span>
               </MovableObject>
             ))}
+          <RoomDoors
+            room={room}
+            disabled={modalBlocked || navigation.travelling}
+            onNavigate={changeScene}
+          />
           {cast.map((actor) => (
             <MovableCharacter
               key={actor.id}
@@ -387,7 +458,10 @@ export default function App() {
           ))}
         </div>
       </main>
-      <header className="game-hud-top">
+      {navigation.transition && snapshot && navigation.transition.duration > 0 && (
+        <RoomTransition snapshot={snapshot} transition={navigation.transition} />
+      )}
+      <header className="game-hud-top" inert={!!navigation.transition}>
         <div className="game-logo">
           <span>✦</span>
           <div>
@@ -423,25 +497,21 @@ export default function App() {
           </GameButton>
         </div>
       </header>
-      <nav className="scene-tabs" aria-label="Escenarios">
-        <GameButton className={!garden ? 'chosen' : ''} onPress={() => changeScene(false)}>
-          <Home />
-          <span>Casita</span>
-        </GameButton>
-        <GameButton className={garden ? 'chosen' : ''} onPress={() => changeScene(true)}>
-          <Sprout />
-          <span>Jardín</span>
-        </GameButton>
-      </nav>
+      <HouseNavigation room={room} travelling={navigation.travelling} onNavigate={changeScene} />
+      {navigation.travelling && (
+        <div className="travel-status" role="status">
+          Recorriendo la casa…
+        </div>
+      )}
       {hint && (
         <div className="game-hint" role="status">
-          <span>☝</span> Toca un personaje y arrástralo · Toca el suelo para caminar
+          <span>☝</span> Toca las puertas para recorrer toda la casa
           <GameButton onPress={() => setHint(false)} aria-label="Cerrar pista">
             <X size={14} />
           </GameButton>
         </div>
       )}
-      <div className="game-controls">
+      <div className="game-controls" inert={!!navigation.transition}>
         <div className="game-family" aria-label="Mis personajes">
           {cast.map((c) => (
             <GameButton
@@ -520,15 +590,13 @@ export default function App() {
               <GameButton
                 key={o.id}
                 onPress={() => {
-                  changeScene(o.garden)
-                  setMapOpen(false)
-                  setSelectedObject(o.id)
+                  visitItem(o)
                 }}
               >
                 <span>{o.emoji}</span>
                 <div>
                   <strong>{o.label}</strong>
-                  <small>{o.garden ? 'En el jardín' : 'En la casita'}</small>
+                  <small>{rooms.find((r) => r.id === o.room)!.label}</small>
                 </div>
                 <b>{save.collected.includes(o.id) ? '★' : <ArrowRight />}</b>
               </GameButton>
@@ -540,9 +608,7 @@ export default function App() {
               <GameButton
                 key={item.id}
                 onPress={() => {
-                  changeScene(item.garden)
-                  setMapOpen(false)
-                  setSelectedObject(item.id)
+                  visitItem(item)
                 }}
               >
                 {item.label}
@@ -596,7 +662,8 @@ export default function App() {
             <p>
               <b>03 · Dale vida a tu mundo</b>Toca un objeto para seleccionarlo y arrástralo para
               moverlo. Pulsa «Usar» para interactuar. También puedes mover los muebles y abrir el
-              armario para ordenar y usar tu ropa. Cambia entre Casita y Jardín.
+              armario para ordenar y usar tu ropa. Recorre casita, cocina, dormitorio y jardín
+              tocando las puertas. El personaje camina hasta ellas y la cámara se desliza al cruzar.
             </p>
             <p>
               <b>04 · Vuelve cuando quieras</b>Tus personajes y recuerdos se guardan en este

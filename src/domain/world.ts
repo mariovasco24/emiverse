@@ -1,3 +1,4 @@
+import { isRoom, type RoomId } from './house'
 import { readCastPositions, type CastPositions } from './cast'
 import { readObjectPositions, type ObjectPositions } from './layout'
 import { initialCloset, readCloset, type ClosetSlots } from './wardrobe'
@@ -18,6 +19,7 @@ export type WorldSave = {
   watered: boolean
   fed: boolean
   objectPositions: ObjectPositions
+  currentRoom: RoomId
   castPositions: CastPositions
   closetSlots: ClosetSlots
 }
@@ -38,7 +40,8 @@ export const initialSave: WorldSave = {
   fed: false,
   objectPositions: {},
   closetSlots: initialCloset,
-  castPositions: { home: {}, garden: {} },
+  currentRoom: 'home',
+  castPositions: { home: {}, garden: {}, kitchen: {}, bedroom: {} },
 }
 export function parseWorldSave(raw: string | null): WorldSave {
   try {
@@ -77,6 +80,7 @@ export function parseWorldSave(raw: string | null): WorldSave {
     return {
       ...data,
       objectPositions: readObjectPositions(data.objectPositions),
+      currentRoom: isRoom(data.currentRoom) ? data.currentRoom : 'home',
       castPositions: readCastPositions(data.castPositions, data.characters),
       closetSlots: readCloset(data.closetSlots),
       collected: [...new Set(data.collected)],

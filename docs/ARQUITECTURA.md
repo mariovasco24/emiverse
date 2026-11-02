@@ -47,3 +47,13 @@ Las pruebas de dominio verifican partidas anteriores, posiciones corruptas, cons
 `DraggableEntity` comparte el sensor de puntero y los límites entre muebles, objetos y personajes. `MovableObject` y `MovableCharacter` son adaptadores visuales pequeños. El catálogo de personajes incluye los creados por el usuario y a Leo; todos se muestran y pueden moverse. `domain/cast.ts` valida coordenadas por personaje y escenario sin depender de la UI. La migración añade esas posiciones sin cambiar personajes, muebles o ropa existentes.
 
 La selección desde la bandeja hace accesible un personaje que esté detrás de otro. Tocar el suelo dirige únicamente al personaje activo; se guardan sus coordenadas al llegar, no en cada fotograma. El control direccional de pantalla fue retirado.
+
+## Casa conectada y cámara
+
+`domain/house.ts` declara las habitaciones y sus puertas bidireccionales. `roomRoute` resuelve el trayecto sin depender de React o del navegador. Añadir una conexión no requiere reescribir el controlador de movimiento.
+
+`useHouseNavigation` coordina las fases de caminar a una salida, confirmar la entrada, deslizar la cámara y continuar el recorrido si quedan habitaciones. El controlador de personajes notifica la llegada; el navegador de habitaciones decide el siguiente paso. Los menús o una nueva selección cancelan únicamente los trayectos pendientes.
+
+`features/house` presenta puertas, selección de destino, escenarios y animación. La salida conserva una instantánea visual inerte del escenario anterior: no duplica controladores, eventos, identificadores vivos de personajes ni referencias SVG. La duración respeta movimiento reducido. La UI queda bloqueada solo durante el deslizamiento para evitar acciones sobre dos habitaciones a la vez.
+
+El guardado añade cocina y dormitorio a las coordenadas de personajes y conserva sala/jardín, muebles y armario existentes. Se guarda la habitación actual al cruzar. El personaje entra por la puerta opuesta; regresar caminando actualiza su posición de forma natural, mientras que los demás mantienen sus posiciones guardadas.
