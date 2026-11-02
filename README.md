@@ -1,6 +1,6 @@
 # EmiVerse — Created by Emily
 
-Juego 2D original a pantalla completa para celulares, tablets y PC. La casita y el jardín ocupan todo el espacio de juego, con personajes de ojos grandes, escenarios dibujados en SVG y controles flotantes. Crea tu personaje, explora una casita y un jardín, cuida a Nubi y colecciona recuerdos. React 19, TypeScript y Vite 8.
+Juego 2D original a pantalla completa para celulares, tablets y PC. Las habitaciones ocupan todo el espacio de juego, con personajes de ojos grandes, escenarios dibujados en SVG y controles flotantes. Crea tu personaje, recorre una casita, cocina, dormitorio y jardín conectados por puertas, cuida a Nubi y colecciona recuerdos. React 19, TypeScript y Vite 8.
 
 ## Estado inicial del repositorio
 
@@ -42,14 +42,16 @@ npm run test:e2e
 
 - Crea hasta cinco personajes desde el botón **+** de la bandeja inferior. Personaliza nombre, piel, ropa, cabello y accesorios.
 - Toca cualquier personaje —incluido Leo— y arrástralo directamente. También puedes seleccionarlo desde la bandeja y tocar el suelo para que camine. No hay flechas en pantalla.
-- Cambia de escenario con **Casita** y **Jardín**.
+- Toca una puerta para caminar hasta ella y pasar a la habitación siguiente con una transición de cámara. También puedes arrastrar al personaje hasta una salida lateral.
+- Usa **Casita**, **Cocina**, **Dormitorio** o **Jardín** para pedir un recorrido. El personaje cruza las habitaciones intermedias; el selector no lo teletransporta.
+- Si tocas otro punto del suelo, eliges otro personaje o abres un menú, se cancela el recorrido pendiente. La transición que ya empezó termina para mantener la vista coherente.
 - Toca un objeto para seleccionarlo y arrástralo con el dedo o el mouse para moverlo. Puedes organizar los juguetes, el sofá, el armario, la mesita, el cuadro, las plantas y el banco del jardín.
 - Pulsa **Usar** sobre un objeto seleccionado para cuidar a Nubi, regar Arcoflor, pintar, activar música o abrir la sorpresa. **Volver a su lugar** restaura su posición inicial.
 - Selecciona el **Armario** y pulsa **Abrir armario**: arrastra las prendas entre espacios, o toca origen y destino. Selecciona una prenda y pulsa **Poner a…** para vestir a tu personaje.
 - El personaje puede recorrer el escenario visible completo; los límites evitan que salga de pantalla.
 - Cambia de protagonista en la bandeja inferior. Usa **Aventuras** para ver los objetos y recuerdos. El juego de memoria se abre desde **Memoria**.
 
-Personajes y recuerdos se conservan en `localStorage` por navegador y origen. Los logros del minijuego se guardan aparte. No se sincronizan entre dispositivos ni entre las URLs de preview y producción. La apariencia de los personajes y el progreso existentes se conservan al actualizar. Las posiciones de objetos y la organización del armario también se guardan. La posición de cada personaje se guarda por separado en la casa y el jardín al soltarlo o cuando termina de caminar. El escenario activo, la música y el dibujo del caballete se reinician al recargar. Si el almacenamiento está bloqueado, se avisa y el juego sigue funcionando durante la sesión.
+Personajes y recuerdos se conservan en `localStorage` por navegador y origen. Los logros del minijuego se guardan aparte. No se sincronizan entre dispositivos ni entre las URLs de preview y producción. La apariencia de los personajes y el progreso existentes se conservan al actualizar. Las posiciones de objetos y la organización del armario también se guardan. La posición de cada personaje se guarda por separado en la casa, cocina, dormitorio y jardín al soltarlo o cuando termina de caminar. La última habitación también se recupera al recargar. La música y el dibujo del caballete se reinician al recargar. Si el almacenamiento está bloqueado, se avisa y el juego sigue funcionando durante la sesión.
 
 ## Pantalla de juego
 
@@ -61,7 +63,7 @@ En navegadores compatibles, el botón de pantalla completa oculta la interfaz de
 
 Personajes, mascota, fondos, ilustración y melodía creados para este proyecto. No se usan personajes ni recursos de Avatar World. Los emojis son símbolos nativos del dispositivo. Sin fuentes remotas, imágenes externas, publicidad ni rastreadores.
 
-Primera versión: dos escenarios, cinco interacciones y un minijuego. No incluye multijugador, físicas, obstáculos sólidos ni cuentas. El armario tiene seis espacios para cinco prendas y accesorios; no es un inventario general de objetos. Se puede caminar por el área de juego y las interacciones se activan al tocar un objeto, sin requisito de proximidad.
+La casa tiene cuatro zonas conectadas: casita, cocina, dormitorio y jardín, además de cinco interacciones y un minijuego. No incluye multijugador, físicas, obstáculos sólidos ni cuentas. El armario tiene seis espacios para cinco prendas y accesorios; no es un inventario general de objetos. Se puede caminar por el área de juego y las interacciones se activan al tocar un objeto, sin requisito de proximidad.
 
 ## Publicar y aprobar desde el celular
 

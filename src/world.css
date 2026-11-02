@@ -1936,3 +1936,209 @@ body:has(.game-screen) {
 .movable-character .player-name {
   pointer-events: auto;
 }
+/* Connected rooms: the actor approaches a physical doorway before the camera slides. */
+.room-door {
+  position: absolute;
+  top: 72%;
+  width: clamp(46px, 7vw, 94px);
+  height: 18%;
+  min-height: 80px;
+  max-height: 180px;
+  z-index: 185;
+  border: 0;
+  background: none;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  touch-action: manipulation;
+  filter: drop-shadow(0 4px 2px #754a5c33);
+}
+.room-door-left {
+  left: 0;
+}
+.room-door-right {
+  right: 0;
+}
+.room-door svg {
+  height: 100%;
+  width: 100%;
+  pointer-events: none;
+}
+.room-door > span {
+  position: absolute;
+  top: -22px;
+  font-size: 10px;
+  font-weight: 800;
+  color: #9c7081;
+  background: #fff2ce;
+  border: 2px solid #b68d84;
+  border-radius: 10px;
+  padding: 5px 7px;
+  white-space: nowrap;
+}
+.room-door:hover {
+  filter: brightness(1.08);
+}
+.room-door:disabled {
+  opacity: 0.65;
+}
+.room-snapshot {
+  position: absolute;
+  inset: 0;
+  z-index: 190;
+  overflow: hidden;
+  pointer-events: none;
+  animation-timing-function: cubic-bezier(0.3, 0.7, 0.2, 1);
+  animation-fill-mode: both;
+}
+.room-snapshot > * {
+  pointer-events: none !important;
+}
+.room-enter-right {
+  animation-name: house-enter-right;
+  animation-timing-function: cubic-bezier(0.3, 0.7, 0.2, 1);
+  animation-fill-mode: both;
+}
+.room-enter-left {
+  animation-name: house-enter-left;
+  animation-timing-function: cubic-bezier(0.3, 0.7, 0.2, 1);
+  animation-fill-mode: both;
+}
+.room-leave-right {
+  animation-name: house-leave-right;
+}
+.room-leave-left {
+  animation-name: house-leave-left;
+}
+.travel-status {
+  position: absolute;
+  z-index: 205;
+  top: 98px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #fff2d5d9;
+  border: 2px solid #c5a090;
+  border-radius: 12px;
+  color: #a27c85;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 7px 12px;
+  pointer-events: none;
+}
+.house-tabs {
+  gap: 4px;
+}
+.house-tabs > button {
+  padding: 8px 10px;
+  gap: 5px;
+  font-size: 11px;
+}
+.house-tabs > button > svg {
+  width: 20px;
+  height: 20px;
+}
+.house-tabs > button:disabled {
+  cursor: default;
+  opacity: 0.75;
+}
+@keyframes house-enter-right {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+@keyframes house-enter-left {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+@keyframes house-leave-right {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-100%);
+  }
+}
+@keyframes house-leave-left {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(100%);
+  }
+}
+@media (orientation: portrait) {
+  .travel-status {
+    top: 155px;
+  }
+  .house-tabs {
+    max-width: calc(100% - 20px);
+  }
+  .house-tabs > button {
+    padding: 7px 11px;
+    flex-direction: column;
+    gap: 2px;
+    font-size: 10px;
+    min-width: 59px;
+  }
+}
+@media (max-width: 520px) {
+  .house-tabs {
+    gap: 4px;
+    padding: 5px;
+  }
+  .house-tabs > button {
+    padding: 6px 9px;
+    min-width: 58px;
+    font-size: 9px;
+  }
+  .house-tabs > button > svg {
+    width: 20px;
+    height: 20px;
+  }
+  .room-door > span {
+    font-size: 8px;
+    padding: 4px 5px;
+  }
+  .room-door {
+    width: 49px;
+  }
+  .travel-status {
+    font-size: 9px;
+    top: 158px;
+  }
+}
+@media (orientation: landscape) and (max-height: 550px) {
+  .house-tabs > button {
+    padding: 6px 9px;
+    font-size: 9px;
+  }
+  .house-tabs > button > svg {
+    width: 17px;
+    height: 17px;
+  }
+  .travel-status {
+    top: 69px;
+    font-size: 9px;
+    padding: 5px 9px;
+  }
+  .room-door > span {
+    font-size: 8px;
+    top: -17px;
+    padding: 3px 5px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .room-snapshot,
+  .room-enter-left,
+  .room-enter-right {
+    animation: none;
+  }
+}

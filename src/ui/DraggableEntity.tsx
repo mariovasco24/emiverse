@@ -104,6 +104,7 @@ export default function DraggableEntity<Id extends string>({
   return (
     <button
       ref={ref}
+      disabled={disabled}
       {...gesture.handlers}
       className={`scene-object movable-object ${className} ${selected ? 'object-selected' : ''} ${dragging ? 'object-dragging' : ''}`}
       data-item={kind === 'object' ? id : undefined}
