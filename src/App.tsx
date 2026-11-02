@@ -175,10 +175,13 @@ export default function App() {
     setPosition(save.castPositions[room][id] || actorDefault(id, save.characters))
     if (id !== guestLeo.id) setSave((s) => ({ ...s, selected: id }))
   }
-  function dropActor(id: string, point: Point) {
+  function placeActor(id: string, point: Point) {
     persistActor(id, point)
+    if (id === activeActorId) setPosition(point)
+  }
+  function dropActor(id: string, point: Point) {
+    placeActor(id, point)
     if (id === activeActorId) {
-      setPosition(point)
       const door = roomDoors(room).find(
         (d) =>
           point.y >= 72 &&
@@ -451,6 +454,7 @@ export default function App() {
               disabled={modalBlocked}
               onSelect={selectActor}
               onDrop={dropActor}
+              onCancel={placeActor}
               onBusy={setManipulating}
               walking={actor.id === activeActorId && walking}
               guest={actor.id === guestLeo.id}

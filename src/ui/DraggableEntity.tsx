@@ -26,6 +26,8 @@ export type DraggableProps<Id extends string> = {
   children: ReactNode
   onSelect: (id: Id | null) => void
   onDrop: (id: Id, point: Point) => void
+  /** Keep the last valid point on interruption when supplied; other entities revert. */
+  onCancel?: (id: Id, point: Point) => void
   onBusy: (busy: boolean) => void
 }
 export default function DraggableEntity<Id extends string>({
@@ -46,6 +48,7 @@ export default function DraggableEntity<Id extends string>({
   children,
   onSelect,
   onDrop,
+  onCancel,
   onBusy,
 }: DraggableProps<Id>) {
   const ref = useRef<HTMLButtonElement>(null)
@@ -54,6 +57,7 @@ export default function DraggableEntity<Id extends string>({
     scene: { width: 0, height: 0 },
   })
   const [preview, setPreview] = useState<Point | null>(null)
+  const lastPreview = useRef<Point | null>(null)
   const [dragging, setDragging] = useState(false)
   const origin = useRef(point)
   useEffect(() => {
@@ -86,23 +90,30 @@ export default function DraggableEntity<Id extends string>({
       consumePointerClick: true,
       start() {
         if (!draggable) return
+        lastPreview.current = null
         origin.current = displayed
         onSelect(id)
         onBusy(true)
       },
       move(g) {
         if (!draggable) return
+        const next = movedPoint(g.dx, g.dy)
+        lastPreview.current = next
         setDragging(true)
-        setPreview(movedPoint(g.dx, g.dy))
+        setPreview(next)
       },
       end(g) {
         if (draggable && g.moved) onDrop(id, movedPoint(g.dx, g.dy))
         if (!draggable && !g.moved) onActivate?.(id)
+        lastPreview.current = null
         setPreview(null)
         setDragging(false)
         onBusy(false)
       },
       cancel() {
+        const last = lastPreview.current
+        lastPreview.current = null
+        if (draggable && last) onCancel?.(id, last)
         setPreview(null)
         setDragging(false)
         onBusy(false)
