@@ -110,13 +110,17 @@ export default function App() {
       y: Math.max(FLOOR_START, playerMinY, point.y),
     }
   }
-  const { position, setPosition, walking, destination } = useCharacterMovement({
+  const { position, setPosition, walking, destination, stop } = useCharacterMovement({
     blocked,
     identity: `${activeActorId}:${room}`,
     constrain: constrainCharacter,
     onSettled: (point) => {
       persistActor(activeActorId, point)
       navigation.arrivedAtExit()
+    },
+    onInterrupted: (point) => {
+      persistActor(activeActorId, point)
+      navigation.cancel()
     },
     initialPoint:
       save.castPositions[room][activeActorId] || actorDefault(activeActorId, save.characters),
@@ -165,8 +169,7 @@ export default function App() {
     navigation.cancel()
     setHint(false)
     setSelectedObject(null)
-    destination.current = null
-    persistActor(activeActorId, position)
+    persistActor(activeActorId, stop())
     if (id === activeActorId) return
     setActiveActorId(id)
     setPosition(save.castPositions[room][id] || actorDefault(id, save.characters))
@@ -215,12 +218,12 @@ export default function App() {
         ? s.characters.map((c) => (c.id === next.id ? next : c))
         : [...s.characters, next],
     }))
-    persistActor(activeActorId, position)
+    const stopped = stop()
+    persistActor(activeActorId, stopped)
     setActiveActorId(next.id)
-    destination.current = null
     setPosition(
       next.id === activeActorId
-        ? position
+        ? stopped
         : save.castPositions[room][next.id] ||
             actorDefault(next.id, [...save.characters.filter((c) => c.id !== next.id), next]),
     )
@@ -260,7 +263,7 @@ export default function App() {
     : null
   function selectObject(id: ItemId | null) {
     navigation.cancel()
-    destination.current = null
+    stop()
     setHint(false)
     setSelectedObject(id)
   }
@@ -269,7 +272,7 @@ export default function App() {
   }
   function activateObject(id: ItemId) {
     navigation.cancel()
-    destination.current = null
+    stop()
     setHint(false)
     setSelectedObject(null)
     if (id === 'wardrobe') setClosetOpen(true)
@@ -279,7 +282,7 @@ export default function App() {
   }
   function toggleArranging() {
     navigation.cancel()
-    destination.current = null
+    stop()
     setSelectedObject(null)
     setArranging((value) => !value)
   }

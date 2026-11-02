@@ -5,6 +5,7 @@ type MovementOptions = {
   identity: string
   constrain: (x: number, y: number) => Point
   onSettled: (point: Point) => void
+  onInterrupted: (point: Point) => void
   initialPoint: Point
 }
 export function useCharacterMovement({
@@ -12,6 +13,7 @@ export function useCharacterMovement({
   identity,
   constrain,
   onSettled,
+  onInterrupted,
   initialPoint,
 }: MovementOptions) {
   const [position, setPosition] = useState(initialPoint)
@@ -22,8 +24,21 @@ export function useCharacterMovement({
   const destination = useRef<Point | null>(null)
   const settledRef = useRef(onSettled)
   settledRef.current = onSettled
+  const interruptedRef = useRef(onInterrupted)
+  interruptedRef.current = onInterrupted
+  const identityRef = useRef(identity)
+  identityRef.current = identity
   const constrainRef = useRef(constrain)
   constrainRef.current = constrain
+  function stop() {
+    const stopped = positionRef.current
+    const moving = keys.current.size > 0 || destination.current !== null
+    keys.current.clear()
+    destination.current = null
+    setWalking(false)
+    if (moving) interruptedRef.current(stopped)
+    return stopped
+  }
   useEffect(() => {
     const current = positionRef.current
     const bounded = constrainRef.current(current.x, current.y)
@@ -52,13 +67,14 @@ export function useCharacterMovement({
       if (keys.current.delete(e.key) && !keys.current.size) settledRef.current(positionRef.current)
     }
     const clear = () => {
-      keys.current.clear()
-      destination.current = null
-      setWalking(false)
+      // App explicitly saves the outgoing actor before switching identity.
+      // Cleanup must never save the incoming actor's coordinates under the old identity.
+      if (identityRef.current === identity) stop()
     }
     window.addEventListener('keydown', keydown)
     window.addEventListener('keyup', keyup)
     window.addEventListener('blur', clear)
+    window.addEventListener('pagehide', clear)
     const visibility = () => {
       if (document.hidden) clear()
     }
@@ -106,10 +122,11 @@ export function useCharacterMovement({
       window.removeEventListener('keydown', keydown)
       window.removeEventListener('keyup', keyup)
       window.removeEventListener('blur', clear)
+      window.removeEventListener('pagehide', clear)
       document.removeEventListener('visibilitychange', visibility)
       clear()
     }
   }, [blocked, identity])
 
-  return { position, setPosition, walking, destination }
+  return { position, setPosition, walking, destination, stop }
 }

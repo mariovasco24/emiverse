@@ -46,7 +46,7 @@ Las pruebas de dominio verifican partidas anteriores, posiciones corruptas, cons
 
 `DraggableEntity` comparte el sensor de puntero y los límites entre muebles, objetos y personajes. `MovableObject` y `MovableCharacter` son adaptadores visuales pequeños. El catálogo de personajes incluye los creados por el usuario y a Leo; todos se muestran y pueden moverse. `domain/cast.ts` valida coordenadas por personaje y escenario sin depender de la UI. La migración añade esas posiciones sin cambiar personajes, muebles o ropa existentes.
 
-La selección desde la bandeja hace accesible un personaje que esté detrás de otro. Tocar el suelo dirige únicamente al personaje activo; se guardan sus coordenadas al llegar, no en cada fotograma. El control direccional de pantalla fue retirado.
+La selección desde la bandeja hace accesible un personaje que esté detrás de otro. Tocar el suelo dirige únicamente al personaje activo; se guardan sus coordenadas al llegar o interrumpir el movimiento, no en cada fotograma. El control direccional de pantalla fue retirado.
 
 ## Casa conectada y cámara
 
@@ -63,3 +63,9 @@ El guardado añade cocina y dormitorio a las coordenadas de personajes y conserv
 `domain/movement.ts` distingue pared y suelo y limita las coordenadas de los personajes. El toque sobre una pared se ignora; el controlador de caminar limita teclado y destinos, y `MovableCharacter` inyecta el mismo límite en `DraggableEntity` para que el arrastre tampoco permita volar. Las posiciones antiguas y los cambios de tamaño se ajustan visualmente a esos límites sin borrar la partida. Los muebles conservan su propia restricción: los cuadros y plantas colgantes sí pueden organizarse sobre la pared.
 
 `DraggableEntity` separa activación y arrastre mediante callbacks. Los gestos consumen su clic de compatibilidad para evitar que un toque ejecute dos veces una acción o abra accidentalmente un diálogo después de arrastrar. Un arrastre fuera del modo Mover no activa ni desplaza el objeto.
+
+## Interrupción y confirmación del guardado
+
+`useCharacterMovement` distingue llegada (`onSettled`) de interrupción (`onInterrupted`). Ambas conservan la posición; solo la llegada puede confirmar el cruce por una puerta. `stop` captura el punto actual antes de abrir objetos o cambiar de personaje. Abrir menús, perder el foco, ocultar la página y `pagehide` detienen y guardan la caminata. La limpieza del controlador de un personaje no puede guardar las coordenadas del siguiente personaje.
+
+`useWorld` mantiene la última partida confirmada en una referencia y aplica las actualizaciones funcionales en orden, aunque React agrupe varios eventos. El repositorio se escribe durante la acción, sin esperar a un efecto que podría no ejecutarse al cerrar o recargar. Los componentes conservan el mismo contrato inyectado; si el navegador impide guardar se mantiene la sesión en memoria y aparece el aviso existente.
