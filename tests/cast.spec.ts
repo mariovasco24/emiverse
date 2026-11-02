@@ -12,7 +12,6 @@ test('sin flechas: Emily, Leo y los personajes creados se mueven de forma indepe
   await page.setViewportSize({ width: 1200, height: 800 })
   await page.goto('/emiverse/')
   await expect(page.locator('.direction-pad')).toHaveCount(0)
-  await expect(page.getByRole('button', { name: /^Mover / })).toHaveCount(0)
   await expect(page.locator('[data-actor]')).toHaveCount(2)
   const emily = page.locator('[data-actor="emily"]')
   const before = await emily.getAttribute('data-x')

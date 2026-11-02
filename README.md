@@ -45,10 +45,10 @@ npm run test:e2e
 - Toca una puerta para caminar hasta ella y pasar a la habitación siguiente con una transición de cámara. También puedes arrastrar al personaje hasta una salida lateral.
 - Usa **Casita**, **Cocina**, **Dormitorio** o **Jardín** para pedir un recorrido. El personaje cruza las habitaciones intermedias; el selector no lo teletransporta.
 - Si tocas otro punto del suelo, eliges otro personaje o abres un menú, se cancela el recorrido pendiente. La transición que ya empezó termina para mantener la vista coherente.
-- Toca un objeto para seleccionarlo y arrástralo con el dedo o el mouse para moverlo. Puedes organizar los juguetes, el sofá, el armario, la mesita, el cuadro, las plantas y el banco del jardín.
-- Pulsa **Usar** sobre un objeto seleccionado para cuidar a Nubi, regar Arcoflor, pintar, activar música o abrir la sorpresa. **Volver a su lugar** restaura su posición inicial.
-- Selecciona el **Armario** y pulsa **Abrir armario**: arrastra las prendas entre espacios, o toca origen y destino. Selecciona una prenda y pulsa **Poner a…** para vestir a tu personaje.
-- El personaje puede recorrer el escenario visible completo; los límites evitan que salga de pantalla.
+- Pulsa **Mover** para organizar juguetes y muebles arrastrándolos con el dedo o el mouse. Pulsa **Listo** para volver a jugar; fuera de ese modo no se cambia su posición.
+- Toca directamente a Nubi, Arcoflor, el caballete, el tocadiscos o la sorpresa para activarlos. No hay confirmaciones ni botones intermedios. La nevera y los cajones de la mesita de noche se abren y cierran al tocarlos.
+- Toca el **Armario** para abrirlo: arrastra las prendas entre espacios, o toca origen y destino. Selecciona una prenda y pulsa **Poner a…** para vestir a tu personaje.
+- Los personajes caminan por todo el suelo. Tocar una pared no mueve al personaje; el arrastre y el teclado también mantienen los pies sobre el suelo.
 - Cambia de protagonista en la bandeja inferior. Usa **Aventuras** para ver los objetos y recuerdos. El juego de memoria se abre desde **Memoria**.
 
 Personajes y recuerdos se conservan en `localStorage` por navegador y origen. Los logros del minijuego se guardan aparte. No se sincronizan entre dispositivos ni entre las URLs de preview y producción. La apariencia de los personajes y el progreso existentes se conservan al actualizar. Las posiciones de objetos y la organización del armario también se guardan. La posición de cada personaje se guarda por separado en la casa, cocina, dormitorio y jardín al soltarlo o cuando termina de caminar. La última habitación también se recupera al recargar. La música y el dibujo del caballete se reinician al recargar. Si el almacenamiento está bloqueado, se avisa y el juego sigue funcionando durante la sesión.
