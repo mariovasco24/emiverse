@@ -3,7 +3,6 @@ import {
   ArrowLeft,
   ArrowRight,
   CircleHelp,
-  Heart,
   Home,
   Maximize,
   Map,
@@ -36,7 +35,8 @@ import { useAmbientMusic } from './application/useAmbientMusic'
 import { useWorld } from './application/useWorld'
 import { useCharacterMovement } from './application/useCharacterMovement'
 import { localWorldRepository } from './infrastructure/LocalWorldRepository'
-import DirectionPad from './ui/DirectionPad'
+import MovableCharacter from './features/room/MovableCharacter'
+import { actorDefault, guestLeo, type RoomId } from './domain/cast'
 import GameButton from './ui/GameButton'
 import WorldDialog from './ui/WorldDialog'
 import MovableObject from './features/room/MovableObject'
@@ -48,6 +48,9 @@ import './world.css'
 export default function App() {
   const { save, setSave, storageBlocked } = useWorld(localWorldRepository)
   const [garden, setGarden] = useState(false)
+  const room: RoomId = garden ? 'garden' : 'home'
+  const [activeActorId, setActiveActorId] = useState(save.selected)
+  const cast = [...save.characters, guestLeo]
   const [editor, setEditor] = useState(false)
   const [draft, setDraft] = useState<Character | null>(null)
   const [help, setHelp] = useState(false)
@@ -70,18 +73,25 @@ export default function App() {
   const blocked = modalBlocked || manipulating
   const constrainCharacter = (x: number, y: number) => {
     const point = clampPosition(x, y)
-    return { ...point, y: Math.max(playerMinY, point.y) }
+    return {
+      x: Math.max(playerInset, Math.min(100 - playerInset, point.x)),
+      y: Math.max(playerMinY, point.y),
+    }
   }
-  const { position, setPosition, walking, direction, destination } = useCharacterMovement(
+  const { position, setPosition, walking, destination } = useCharacterMovement({
     blocked,
-    constrainCharacter,
-  )
+    identity: activeActorId,
+    constrain: constrainCharacter,
+    onSettled: (point) => persistActor(activeActorId, point),
+    initialPoint:
+      save.castPositions[room][activeActorId] || actorDefault(activeActorId, save.characters),
+  })
   const [playerInset, setPlayerInset] = useState(15)
   const sceneRef = useRef<HTMLDivElement>(null)
   useEffect(() => {
     const scene = sceneRef.current
     if (!scene) return
-    const player = scene.querySelector<HTMLElement>('.world-player')
+    const player = scene.querySelector<HTMLElement>('.actor-active')
     const observer = new ResizeObserver(() => {
       const { width, height } = scene.getBoundingClientRect()
       if (width) {
@@ -96,13 +106,35 @@ export default function App() {
     observer.observe(scene)
     if (player) observer.observe(player)
     return () => observer.disconnect()
-  }, [memory])
+  }, [memory, activeActorId])
   useEffect(() => {
     const timer = setTimeout(() => setHint(false), 7000)
     return () => clearTimeout(timer)
   }, [])
   useAmbientMusic(sound, music, blocked)
+  function persistActor(id: string, point: Point) {
+    setSave((s) => ({
+      ...s,
+      castPositions: { ...s.castPositions, [room]: { ...s.castPositions[room], [id]: point } },
+    }))
+  }
+  function selectActor(id: string | null) {
+    if (!id) return
+    setHint(false)
+    setSelectedObject(null)
+    destination.current = null
+    persistActor(activeActorId, position)
+    if (id === activeActorId) return
+    setActiveActorId(id)
+    setPosition(save.castPositions[room][id] || actorDefault(id, save.characters))
+    if (id !== guestLeo.id) setSave((s) => ({ ...s, selected: id }))
+  }
+  function dropActor(id: string, point: Point) {
+    persistActor(id, point)
+    if (id === activeActorId) setPosition(point)
+  }
   function edit(newCharacter = false) {
+    if (activeActorId === guestLeo.id && !newCharacter) selectActor(save.selected)
     if (newCharacter && save.characters.length >= 5) {
       setToast('Tu familia ya tiene 5 personajes. ¡Puedes personalizarlos!')
       return
@@ -131,6 +163,15 @@ export default function App() {
         ? s.characters.map((c) => (c.id === next.id ? next : c))
         : [...s.characters, next],
     }))
+    persistActor(activeActorId, position)
+    setActiveActorId(next.id)
+    destination.current = null
+    setPosition(
+      next.id === activeActorId
+        ? position
+        : save.castPositions[room][next.id] ||
+            actorDefault(next.id, [...save.characters.filter((c) => c.id !== next.id), next]),
+    )
     setEditor(false)
     setToast(`¡${next.name} está listo para explorar!`)
   }
@@ -162,8 +203,12 @@ export default function App() {
     )
   }
   function changeScene(next: boolean) {
+    persistActor(activeActorId, position)
     setGarden(next)
-    setPosition({ x: 48, y: 76 })
+    setPosition(
+      save.castPositions[next ? 'garden' : 'home'][activeActorId] ||
+        actorDefault(activeActorId, save.characters),
+    )
     destination.current = null
     setInteraction(null)
     setSelectedObject(null)
@@ -248,7 +293,7 @@ export default function App() {
             setSelectedObject(null)
             const r = e.currentTarget.getBoundingClientRect()
             destination.current = constrainCharacter(
-              (((e.clientX - r.left) / r.width) * 100 - playerInset) / (1 - playerInset / 50),
+              ((e.clientX - r.left) / r.width) * 100,
               ((e.clientY - r.top) / r.height) * 100,
             )
           }}
@@ -320,42 +365,26 @@ export default function App() {
                 </span>
               </MovableObject>
             ))}
-          {!garden && (
-            <GameButton
-              className="game-neighbor"
-              style={{ zIndex: 72 }}
-              aria-label="Saludar a Leo"
-              onPress={() => setToast('Leo: ¡Hola! ¿Me ayudas a cuidar a Nubi? ♡')}
-            >
-              <Avatar
-                character={{
-                  id: 'leo',
-                  name: 'Leo',
-                  skin: skinColors[2],
-                  shirt: shirtColors[2],
-                  hair: 'short',
-                  accessory: 'none',
-                }}
-              />
-              <span>Leo</span>
-            </GameButton>
-          )}
-          <div
-            className="world-player"
-            style={{
-              left: `${playerInset + position.x * (1 - playerInset / 50)}%`,
-              top: `${position.y}%`,
-              zIndex: Math.round(position.y),
-            }}
-            data-x={position.x.toFixed(1)}
-            data-y={position.y.toFixed(1)}
-          >
-            <span className="player-name">
-              {character.name}
-              <Heart size={10} fill="currentColor" />
-            </span>
-            <Avatar character={character} walking={walking} />
-          </div>
+          {cast.map((actor) => (
+            <MovableCharacter
+              key={actor.id}
+              character={actor}
+              point={
+                actor.id === activeActorId
+                  ? position
+                  : save.castPositions[room][actor.id] || actorDefault(actor.id, save.characters)
+              }
+              sceneRef={sceneRef}
+              selected={actor.id === activeActorId}
+              elevateSelection={!selectedObject}
+              disabled={modalBlocked}
+              onSelect={selectActor}
+              onDrop={dropActor}
+              onBusy={setManipulating}
+              walking={actor.id === activeActorId && walking}
+              guest={actor.id === guestLeo.id}
+            />
+          ))}
         </div>
       </main>
       <header className="game-hud-top">
@@ -406,34 +435,21 @@ export default function App() {
       </nav>
       {hint && (
         <div className="game-hint" role="status">
-          <span>☝</span> Toca para seleccionar · Arrastra para mover
+          <span>☝</span> Toca un personaje y arrástralo · Toca el suelo para caminar
           <GameButton onPress={() => setHint(false)} aria-label="Cerrar pista">
             <X size={14} />
           </GameButton>
         </div>
       )}
       <div className="game-controls">
-        <DirectionPad
-          disabled={blocked}
-          onStart={(d) => {
-            setHint(false)
-            setSelectedObject(null)
-            destination.current = null
-            direction.current = d
-          }}
-          onStop={() => {
-            direction.current = { x: 0, y: 0 }
-          }}
-          onStep={(d) => setPosition((p) => constrainCharacter(p.x + d.x * 4, p.y + d.y * 4))}
-        />
         <div className="game-family" aria-label="Mis personajes">
-          {save.characters.map((c) => (
+          {cast.map((c) => (
             <GameButton
               key={c.id}
-              className={c.id === save.selected ? 'selected-character' : ''}
-              onPress={() => setSave((s) => ({ ...s, selected: c.id }))}
+              className={c.id === activeActorId ? 'selected-character' : ''}
+              onPress={() => selectActor(c.id)}
               aria-label={`Jugar con ${c.name}`}
-              aria-pressed={c.id === save.selected}
+              aria-pressed={c.id === activeActorId}
             >
               <Avatar character={c} />
             </GameButton>
@@ -574,8 +590,8 @@ export default function App() {
               Puedes crear hasta 5 personajes.
             </p>
             <p>
-              <b>02 · Explora a tu manera</b>Toca el suelo o mantén pulsadas las flechas para
-              caminar. También funciona con teclado (flechas o WASD).
+              <b>02 · Explora a tu manera</b>Toca un personaje para seleccionarlo y arrástralo con
+              el dedo. Toca el suelo para que camine hasta allí. Puedes mover a todos, incluido Leo.
             </p>
             <p>
               <b>03 · Dale vida a tu mundo</b>Toca un objeto para seleccionarlo y arrástralo para

@@ -41,3 +41,9 @@ En el armario se intercambian dos espacios de forma inmutable, conservando todas
 ## Validación
 
 Las pruebas de dominio verifican partidas anteriores, posiciones corruptas, conservación de prendas y límites de objetos. Playwright verifica los flujos completos con mouse y entrada táctil, cancelación, recarga, organización del armario, personalización y pantallas de celular/tablet/PC. La publicación sigue el flujo rama → PR → verificaciones → main → GitHub Pages.
+
+## Personajes y entrada directa
+
+`DraggableEntity` comparte el sensor de puntero y los límites entre muebles, objetos y personajes. `MovableObject` y `MovableCharacter` son adaptadores visuales pequeños. El catálogo de personajes incluye los creados por el usuario y a Leo; todos se muestran y pueden moverse. `domain/cast.ts` valida coordenadas por personaje y escenario sin depender de la UI. La migración añade esas posiciones sin cambiar personajes, muebles o ropa existentes.
+
+La selección desde la bandeja hace accesible un personaje que esté detrás de otro. Tocar el suelo dirige únicamente al personaje activo; se guardan sus coordenadas al llegar, no en cada fotograma. El control direccional de pantalla fue retirado.
