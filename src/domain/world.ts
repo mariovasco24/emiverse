@@ -2,6 +2,7 @@ import { isRoom, type RoomId } from './house'
 import { readCastPositions, type CastPositions } from './cast'
 import { readObjectPositions, type ObjectPositions } from './layout'
 import { initialCloset, readCloset, type ClosetSlots } from './wardrobe'
+import { readInventory, type CargoItem } from './inventory'
 export const skinColors = ['#f5d0ad', '#dfab83', '#b97850', '#805239']
 export const shirtColors = ['#f18c9e', '#a9a0e9', '#78bfad', '#edb958', '#7eaee1', '#e47560']
 export type Character = {
@@ -22,6 +23,7 @@ export type WorldSave = {
   currentRoom: RoomId
   castPositions: CastPositions
   closetSlots: ClosetSlots
+  inventory: CargoItem[]
 }
 export const initialSave: WorldSave = {
   characters: [
@@ -40,8 +42,9 @@ export const initialSave: WorldSave = {
   fed: false,
   objectPositions: {},
   closetSlots: initialCloset,
+  inventory: [],
   currentRoom: 'home',
-  castPositions: { home: {}, garden: {}, kitchen: {}, bedroom: {} },
+  castPositions: { home: {}, garden: {}, kitchen: {}, bedroom: {}, shop: {} },
 }
 export function parseWorldSave(raw: string | null): WorldSave {
   try {
@@ -83,6 +86,7 @@ export function parseWorldSave(raw: string | null): WorldSave {
       currentRoom: isRoom(data.currentRoom) ? data.currentRoom : 'home',
       castPositions: readCastPositions(data.castPositions, data.characters),
       closetSlots: readCloset(data.closetSlots),
+      inventory: readInventory(data.inventory),
       collected: [...new Set(data.collected)],
     }
   } catch {

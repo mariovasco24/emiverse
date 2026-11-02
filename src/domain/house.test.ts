@@ -38,6 +38,7 @@ it('migra sala y jardín conservando sus muebles y añade cocina y dormitorio va
     garden: { emily: { x: 30, y: 80 } },
     kitchen: {},
     bedroom: {},
+    shop: {},
   })
   expect(loaded.objectPositions.sofa).toEqual({ x: 40, y: 60 })
 })

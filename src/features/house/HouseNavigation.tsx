@@ -1,7 +1,8 @@
-import { BedDouble, CookingPot, Home, Sprout } from 'lucide-react'
+import { BedDouble, CookingPot, Home, Sprout, Store } from 'lucide-react'
 import { roomDoors, rooms, type RoomId } from '../../domain/house'
 import GameButton from '../../ui/GameButton'
 const icons = {
+  shop: <Store />,
   home: <Home />,
   kitchen: <CookingPot />,
   bedroom: <BedDouble />,

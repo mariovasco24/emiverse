@@ -73,3 +73,11 @@ El guardado añade cocina y dormitorio a las coordenadas de personajes y conserv
 ## Interrupciones del arrastre de personajes
 
 `DraggableEntity` conserva el último punto provisional en una referencia, incluso si React aún no dibujó ese fotograma. El callback opcional `onCancel` permite a los personajes confirmar ese punto ante `pointercancel`, pérdida de captura, cambios de tamaño, pérdida de foco y salida de página. La composición conecta esa interrupción con `placeActor`, que guarda y coloca al personaje sin activar puertas. Los objetos y muebles mantienen la cancelación de su cambio provisional. El sensor compartido también escucha `pagehide`, para cerrar un gesto antes de abandonar el juego.
+
+## Tienda, bolsa y nevera
+
+`domain/inventory.ts` define el catálogo de productos originales, la identidad de cada objeto y una única ubicación: bolsa, nevera o habitación con coordenadas. Las transferencias y el orden son funciones puras; no clonan objetos ni filtran por alimentos. Los objetos originales conservan una identidad reservada para que recogerlos no cree copias. La carga descarta registros corruptos o duplicados conservando el resto; las partidas anteriores reciben un inventario vacío y posiciones de personajes para la tienda.
+
+`useInventory` coordina recoger productos, llevar objetos originales y transferirlos a través del `setSave` inyectado. No escribe directamente en localStorage. `features/inventory` dibuja el catálogo, el contenido de la bolsa y los estantes con arte SVG original. Reutiliza `usePointerGesture` para arrastre táctil y permite la misma transferencia seleccionando y pulsando su destino. Cancelar un arrastre no transfiere el objeto. Las listas se desplazan con Más; los objetos se pueden dejar en cualquier habitación y volver a recoger.
+
+La tienda extiende el mapa al otro lado del jardín y conserva las conexiones anteriores. El movimiento de personajes, la distribución de muebles y la organización del armario mantienen sus contratos anteriores. `MovableObject` ahora admite identificadores genéricos para componer las compras con el mismo sensor de arrastre. Las zonas transparentes de los controles dejan pasar los toques al escenario.

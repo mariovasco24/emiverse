@@ -15,6 +15,7 @@ import {
   Volume2,
   VolumeX,
   X,
+  ShoppingBag,
 } from 'lucide-react'
 import Avatar from './Character'
 import Scenery from './Scenery'
@@ -33,6 +34,11 @@ import {
 import { garments, type GarmentId } from './domain/wardrobe'
 import { useAmbientMusic } from './application/useAmbientMusic'
 import { useWorld } from './application/useWorld'
+import { useInventory } from './application/useInventory'
+import { originalCargoId, isOriginalKind, cargoLabel, type CargoPlace } from './domain/inventory'
+import StoragePanel from './features/inventory/StoragePanel'
+import ShopStock from './features/inventory/ShopStock'
+import CargoArt from './features/inventory/CargoArt'
 import { useCharacterMovement } from './application/useCharacterMovement'
 import { localWorldRepository } from './infrastructure/LocalWorldRepository'
 import MovableCharacter from './features/room/MovableCharacter'
@@ -50,15 +56,17 @@ import CharacterEditor from './features/wardrobe/CharacterEditor'
 import Wardrobe from './features/wardrobe/Wardrobe'
 import { Pet, Plant } from './features/room/ObjectArt'
 import './world.css'
+import './features/inventory/inventory.css'
 export default function App() {
   const { save, setSave, storageBlocked } = useWorld(localWorldRepository)
+  const inventory = useInventory(setSave)
   const [activeActorId, setActiveActorId] = useState(save.selected)
   const [snapshot, setSnapshot] = useState<HTMLElement | null>(null)
   const navigation = useHouseNavigation({
     initialRoom: save.currentRoom,
     approach: (door) => {
       setHint(false)
-      setSelectedObject(null)
+      clearSelection()
       destination.current = constrainCharacter(door.approach.x, door.approach.y)
     },
     beforeTransition: (transition) => {
@@ -68,7 +76,7 @@ export default function App() {
       const entry = constrainCharacter(door.entry.x, door.entry.y)
       setPosition(entry)
       destination.current = null
-      setSelectedObject(null)
+      clearSelection()
       setSave((s) => ({
         ...s,
         currentRoom: door.to,
@@ -100,8 +108,11 @@ export default function App() {
   const [openFurniture, setOpenFurniture] = useState<Partial<Record<FurnitureId, boolean>>>({})
   const [manipulating, setManipulating] = useState(false)
   const [closetOpen, setClosetOpen] = useState(false)
+  const [storageView, setStorageView] = useState<'bag' | 'fridge' | null>(null)
+  const [selectedCargo, setSelectedCargo] = useState<string | null>(null)
   const character = save.characters.find((c) => c.id === save.selected)!
-  const modalBlocked = editor || help || memory || mapOpen || closetOpen || !!navigation.transition
+  const modalBlocked =
+    editor || help || memory || mapOpen || closetOpen || !!storageView || !!navigation.transition
   const blocked = modalBlocked || manipulating
   const constrainCharacter = (x: number, y: number) => {
     const point = clampPosition(x, y)
@@ -152,11 +163,11 @@ export default function App() {
   }, [])
   useEffect(() => {
     if (
-      (editor || help || memory || mapOpen || closetOpen || manipulating) &&
+      (editor || help || memory || mapOpen || closetOpen || storageView || manipulating) &&
       !navigation.transition
     )
       navigation.cancel()
-  }, [editor, help, memory, mapOpen, closetOpen, manipulating])
+  }, [editor, help, memory, mapOpen, closetOpen, storageView, manipulating])
   useAmbientMusic(sound, music, blocked)
   function persistActor(id: string, point: Point) {
     setSave((s) => ({
@@ -168,7 +179,7 @@ export default function App() {
     if (!id) return
     navigation.cancel()
     setHint(false)
-    setSelectedObject(null)
+    clearSelection()
     persistActor(activeActorId, stop())
     if (id === activeActorId) return
     setActiveActorId(id)
@@ -248,12 +259,22 @@ export default function App() {
   }
   function changeScene(next: RoomId) {
     setHint(false)
-    setSelectedObject(null)
+    clearSelection()
     navigation.navigate(next)
   }
   function visitItem(item: { id: ItemId; room: RoomId }) {
     setMapOpen(false)
-    navigation.navigate(item.room, () => {
+    const carried = isOriginalKind(item.id) ? originalItem(item.id) : undefined
+    if (carried?.place === 'bag') {
+      openStorage('bag')
+      return
+    }
+    if (carried?.place === 'fridge') {
+      navigation.navigate('kitchen', () => openStorage('fridge'))
+      return
+    }
+    const destinationRoom = carried?.place || item.room
+    navigation.navigate(destinationRoom, () => {
       if (arranging) selectObject(item.id)
       else activateObject(item.id)
     })
@@ -264,30 +285,64 @@ export default function App() {
         ? objectDefault(selectedObject as ObjectId, sceneSize.width, sceneSize.height)
         : furnitureLayout(selectedObject as FurnitureId, sceneSize.width, sceneSize.height).point)
     : null
+  function clearSelection() {
+    setSelectedObject(null)
+    setSelectedCargo(null)
+  }
   function selectObject(id: ItemId | null) {
     navigation.cancel()
     stop()
     setHint(false)
     setSelectedObject(id)
+    setSelectedCargo(null)
   }
   function placeObject(id: ItemId, point: Point) {
+    if (isOriginalKind(id) && save.inventory.some((i) => i.id === originalCargoId(id))) {
+      inventory.move(originalCargoId(id), room, point)
+      return
+    }
     setSave((s) => ({ ...s, objectPositions: { ...s.objectPositions, [id]: point } }))
   }
   function activateObject(id: ItemId) {
     navigation.cancel()
     stop()
     setHint(false)
-    setSelectedObject(null)
+    clearSelection()
     if (id === 'wardrobe') setClosetOpen(true)
+    else if (id === 'fridge') openStorage('fridge')
     else if (objects.some((o) => o.id === id)) discover(id as ObjectId)
-    else if (id === 'fridge' || id === 'nightstand')
-      setOpenFurniture((open) => ({ ...open, [id]: !open[id] }))
+    else if (id === 'nightstand') setOpenFurniture((open) => ({ ...open, [id]: !open[id] }))
   }
   function toggleArranging() {
     navigation.cancel()
     stop()
-    setSelectedObject(null)
+    clearSelection()
     setArranging((value) => !value)
+  }
+  function openStorage(view: 'bag' | 'fridge') {
+    navigation.cancel()
+    stop()
+    clearSelection()
+    setStorageView(view)
+    if (view === 'fridge') setOpenFurniture((open) => ({ ...open, fridge: true }))
+  }
+  function closeStorage() {
+    setStorageView(null)
+    setOpenFurniture((open) => ({ ...open, fridge: false }))
+  }
+  function moveStoredItem(id: string, place: CargoPlace, before?: string) {
+    inventory.move(id, place, undefined, before)
+  }
+  function originalItem(id: ObjectId) {
+    return save.inventory.find((i) => i.id === originalCargoId(id))
+  }
+  function objectLocationLabel(id: ObjectId) {
+    const place = originalItem(id)?.place || objects.find((o) => o.id === id)!.room
+    return place === 'bag'
+      ? 'En la bolsa'
+      : place === 'fridge'
+        ? 'En la nevera'
+        : rooms.find((r) => r.id === place)!.label
   }
   function wear(id: GarmentId) {
     const garment = garments.find((g) => g.id === id)!
@@ -357,7 +412,7 @@ export default function App() {
             if (!isFloorPoint(target)) return
             navigation.cancel()
             setHint(false)
-            setSelectedObject(null)
+            clearSelection()
             destination.current = constrainCharacter(target.x, target.y)
           }}
         >
@@ -384,19 +439,24 @@ export default function App() {
                   className="movable-furniture"
                   style={{ width: `${layout.width}%`, aspectRatio: layout.ratio }}
                 >
-                  <FurnitureArt id={item.id} open={openFurniture[item.id]} />
+                  <FurnitureArt
+                    id={item.id}
+                    open={openFurniture[item.id]}
+                    contents={save.inventory.filter((i) => i.place === 'fridge').map((i) => i.kind)}
+                  />
                   <span className="object-label">{item.label}</span>
                 </MovableObject>
               )
             })}
           {objects
-            .filter((o) => o.room === room)
+            .filter((o) => (originalItem(o.id)?.place || o.room) === room)
             .map((o) => (
               <MovableObject
                 key={o.id}
                 id={o.id}
                 label={o.label}
                 point={
+                  originalItem(o.id)?.point ||
                   save.objectPositions[o.id] ||
                   objectDefault(o.id, sceneSize.width, sceneSize.height)
                 }
@@ -439,6 +499,39 @@ export default function App() {
             disabled={modalBlocked || navigation.travelling}
             onNavigate={changeScene}
           />
+          {room === 'shop' && (
+            <ShopStock
+              disabled={modalBlocked || navigation.travelling}
+              onTake={inventory.takeProduct}
+            />
+          )}
+          {save.inventory
+            .filter((i) => i.place === room && !isOriginalKind(i.kind))
+            .map((item) => (
+              <MovableObject
+                key={item.id}
+                id={item.id}
+                label={cargoLabel(item.kind)}
+                point={item.point || { x: 55, y: 86 }}
+                sceneRef={sceneRef}
+                selected={selectedCargo === item.id}
+                disabled={modalBlocked}
+                draggable={arranging}
+                onSelect={(id) => {
+                  navigation.cancel()
+                  stop()
+                  clearSelection()
+                  setSelectedCargo(id)
+                }}
+                onActivate={(id) => inventory.move(id, 'bag')}
+                onDrop={(id, point) => inventory.move(id, room, point)}
+                onBusy={setManipulating}
+                className="loose-cargo"
+              >
+                <CargoArt kind={item.kind} />
+                <span className="object-label">{cargoLabel(item.kind)}</span>
+              </MovableObject>
+            ))}
           {cast.map((actor) => (
             <MovableCharacter
               key={actor.id}
@@ -450,7 +543,7 @@ export default function App() {
               }
               sceneRef={sceneRef}
               selected={actor.id === activeActorId}
-              elevateSelection={!selectedObject}
+              elevateSelection={!selectedObject && !selectedCargo}
               disabled={modalBlocked}
               onSelect={selectActor}
               onDrop={dropActor}
@@ -538,6 +631,16 @@ export default function App() {
         </div>
         <div className="game-tools">
           <GameButton
+            className="bag-button"
+            onPress={() => openStorage('bag')}
+            aria-label="Abrir bolsa"
+          >
+            <ShoppingBag />
+            <span>
+              Bolsa <b>{save.inventory.filter((i) => i.place === 'bag').length}</b>
+            </span>
+          </GameButton>
+          <GameButton
             className="move-button"
             onPress={toggleArranging}
             aria-label="Mover objetos"
@@ -578,10 +681,49 @@ export default function App() {
           <strong>
             {[...objects, ...furniture].find((item) => item.id === selectedObject)!.label}
           </strong>
-          <GameButton onPress={() => setSelectedObject(null)} aria-label="Soltar objeto">
+          {isOriginalKind(selectedObject) && (
+            <GameButton
+              onPress={() => {
+                inventory.takeOriginal(selectedObject)
+                clearSelection()
+              }}
+            >
+              Llevar en bolsa
+            </GameButton>
+          )}
+          <GameButton onPress={() => clearSelection()} aria-label="Soltar objeto">
             <X size={18} />
           </GameButton>
         </div>
+      )}
+      {arranging && selectedCargo && !manipulating && !modalBlocked && (
+        <div
+          className="object-toolbar"
+          role="toolbar"
+          aria-label="Objeto seleccionado"
+          data-placement="top"
+        >
+          <GameButton
+            onPress={() => {
+              inventory.move(selectedCargo, 'bag')
+              setSelectedCargo(null)
+            }}
+          >
+            Llevar en bolsa
+          </GameButton>
+          <GameButton onPress={() => setSelectedCargo(null)} aria-label="Soltar objeto">
+            <X size={18} />
+          </GameButton>
+        </div>
+      )}
+      {storageView && (
+        <StoragePanel
+          mode={storageView}
+          items={save.inventory}
+          room={room}
+          onMove={moveStoredItem}
+          onClose={closeStorage}
+        />
       )}
       <span className="game-signature">EmiVerse — Created by Emily</span>
       {storageBlocked && (
@@ -603,7 +745,7 @@ export default function App() {
                 <span>{o.emoji}</span>
                 <div>
                   <strong>{o.label}</strong>
-                  <small>{rooms.find((r) => r.id === o.room)!.label}</small>
+                  <small>{objectLocationLabel(o.id)}</small>
                 </div>
                 <b>{save.collected.includes(o.id) ? '★' : <ArrowRight />}</b>
               </GameButton>
@@ -670,11 +812,17 @@ export default function App() {
               <b>03 · Dale vida a tu mundo</b>Toca un objeto para activarlo o el armario para
               abrirlo. Pulsa «Mover» para reorganizar objetos y muebles arrastrándolos; pulsa
               «Listo» para seguir jugando. Los personajes caminan por el suelo y no pueden subir por
-              las paredes. Recorre casita, cocina, dormitorio y jardín tocando las puertas. El
-              personaje camina hasta ellas y la cámara se desliza al cruzar.
+              las paredes. Recorre tienda, jardín, casita, cocina y dormitorio tocando las puertas.
+              El personaje camina hasta ellas y la cámara se desliza al cruzar.
             </p>
             <p>
-              <b>04 · Vuelve cuando quieras</b>Tus personajes y recuerdos se guardan en este
+              <b>04 · Llena tu nevera</b>Toca productos en la tienda para llevarlos en la bolsa.
+              Abre la nevera y arrástralos a sus estantes o de vuelta a la bolsa. Puedes guardar
+              comida y juguetes. Para llevar un objeto de la casa, selecciónalo en «Mover» y pulsa
+              «Llevar en bolsa». Usa «Más» para recorrer tus cosas.
+            </p>
+            <p>
+              <b>05 · Vuelve cuando quieras</b>Tus personajes y recuerdos se guardan en este
               navegador. No necesitas una cuenta. El sonido es opcional.
             </p>
           </div>

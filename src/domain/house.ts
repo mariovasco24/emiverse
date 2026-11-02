@@ -1,5 +1,6 @@
 import type { Point } from './layout'
 export const rooms = [
+  { id: 'shop', label: 'Tienda', region: 'Escenario de la tienda', tone: '#f2b7ca' },
   { id: 'garden', label: 'Jardín', region: 'Escenario del jardín', tone: '#a8d5a0' },
   { id: 'home', label: 'Casita', region: 'Escenario de la casita', tone: '#f3c69f' },
   { id: 'kitchen', label: 'Cocina', region: 'Escenario de la cocina', tone: '#a8d6c8' },

@@ -5,10 +5,12 @@ export default function WorldDialog({
   title,
   onClose,
   children,
+  className = '',
 }: {
   title: string
   onClose: () => void
   children: ReactNode
+  className?: string
 }) {
   const ref = useRef<HTMLDialogElement>(null)
   const backdropPress = useRef(false)
@@ -19,7 +21,7 @@ export default function WorldDialog({
   }, [])
   return (
     <dialog
-      className="world-dialog"
+      className={`world-dialog ${className}`}
       ref={ref}
       aria-label={title}
       onCancel={onClose}
