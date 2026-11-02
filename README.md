@@ -44,13 +44,19 @@ npm run test:e2e
 - Toca cualquier personaje —incluido Leo— y arrástralo directamente. También puedes seleccionarlo desde la bandeja y tocar el suelo para que camine. No hay flechas en pantalla.
 - Si el navegador interrumpe el arrastre de un personaje o cambia el tamaño de la pantalla, el muñeco conserva su último punto válido; no vuelve al inicio.
 - Toca una puerta para caminar hasta ella y pasar a la habitación siguiente con una transición de cámara. También puedes arrastrar al personaje hasta una salida lateral.
-- Usa **Casita**, **Cocina**, **Dormitorio** o **Jardín** para pedir un recorrido. El personaje cruza las habitaciones intermedias; el selector no lo teletransporta.
+- Usa **Tienda**, **Casita**, **Cocina**, **Dormitorio** o **Jardín** para pedir un recorrido. El personaje cruza las habitaciones intermedias; el selector no lo teletransporta.
 - Si tocas otro punto del suelo, eliges otro personaje o abres un menú, se cancela el recorrido pendiente. La transición que ya empezó termina para mantener la vista coherente.
 - Pulsa **Mover** para organizar juguetes y muebles arrastrándolos con el dedo o el mouse. Pulsa **Listo** para volver a jugar; fuera de ese modo no se cambia su posición.
 - Toca directamente a Nubi, Arcoflor, el caballete, el tocadiscos o la sorpresa para activarlos. No hay confirmaciones ni botones intermedios. La nevera y los cajones de la mesita de noche se abren y cierran al tocarlos.
 - Toca el **Armario** para abrirlo: arrastra las prendas entre espacios, o toca origen y destino. Selecciona una prenda y pulsa **Poner a…** para vestir a tu personaje.
 - Los personajes caminan por todo el suelo. Tocar una pared no mueve al personaje; el arrastre y el teclado también mantienen los pies sobre el suelo.
 - Cambia de protagonista en la bandeja inferior. Usa **Aventuras** para ver los objetos y recuerdos. El juego de memoria se abre desde **Memoria**.
+
+- Visita **Tienda**, al otro lado del jardín: toca comida, flores y juguetes para meterlos en tu **Bolsa**, sin dinero ni confirmaciones. Puedes llevar varias unidades del mismo producto.
+- En la cocina, toca la **Nevera** y arrastra cosas entre la bolsa y los estantes para guardarlas o sacarlas. También puedes tocar un objeto y pulsar **A la nevera** o **A la bolsa**. No está limitada a comida: acepta todos los objetos transportables del juego, incluidos juguetes y Nubi.
+- Para llevar un objeto de la casa, activa **Mover**, selecciónalo y pulsa **Llevar en bolsa**. Los muebles y personajes mantienen sus propios controles.
+- Desde la bolsa puedes seleccionar algo y usar **Dejar en…** para colocarlo en la habitación actual. Toca una compra en el suelo para recogerla de nuevo, o activa **Mover** para cambiar su posición.
+- El botón **Más** recorre los estantes o una bolsa llena sin necesitar una computadora. La bolsa, la nevera y los objetos dejados en cada habitación se guardan al instante.
 
 Personajes y recuerdos se conservan en `localStorage` por navegador y origen. Los logros del minijuego se guardan aparte. No se sincronizan entre dispositivos ni entre las URLs de preview y producción. La apariencia de los personajes y el progreso existentes se conservan al actualizar. Las posiciones de objetos y la organización del armario también se guardan. La posición de cada personaje se guarda por separado en la casa, cocina, dormitorio y jardín al soltarlo, al terminar de caminar o al interrumpir la caminata. Abrir un menú, activar un objeto, cambiar de personaje, salir a otra aplicación o recargar también conserva el último avance. La última habitación también se recupera al recargar. La música y el dibujo del caballete se reinician al recargar. Si el almacenamiento está bloqueado, se avisa y el juego sigue funcionando durante la sesión.
 
@@ -64,7 +70,7 @@ En navegadores compatibles, el botón de pantalla completa oculta la interfaz de
 
 Personajes, mascota, fondos, ilustración y melodía creados para este proyecto. No se usan personajes ni recursos de Avatar World. Los emojis son símbolos nativos del dispositivo. Sin fuentes remotas, imágenes externas, publicidad ni rastreadores.
 
-La casa tiene cuatro zonas conectadas: casita, cocina, dormitorio y jardín, además de cinco interacciones y un minijuego. No incluye multijugador, físicas, obstáculos sólidos ni cuentas. El armario tiene seis espacios para cinco prendas y accesorios; no es un inventario general de objetos. Se puede caminar por el área de juego y las interacciones se activan al tocar un objeto, sin requisito de proximidad.
+El mundo tiene cinco zonas conectadas: tienda, jardín, casita, cocina y dormitorio, además de cinco interacciones y un minijuego. No incluye multijugador, físicas, obstáculos sólidos ni cuentas. El armario tiene seis espacios para cinco prendas y accesorios; la bolsa y la nevera usan un inventario separado de objetos transportables. Se puede caminar por el área de juego y las interacciones se activan al tocar un objeto, sin requisito de proximidad.
 
 ## Publicar y aprobar desde el celular
 

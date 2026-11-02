@@ -28,7 +28,7 @@ export function actorDefault(id: string, characters: Character[]): Point {
   )
 }
 export function readCastPositions(input: unknown, characters: Character[]): CastPositions {
-  const result: CastPositions = { home: {}, garden: {}, kitchen: {}, bedroom: {} }
+  const result = Object.fromEntries(rooms.map((room) => [room.id, {}])) as CastPositions
   if (!input || typeof input !== 'object') return result
   const ids = new Set([...characters.map((c) => c.id), guestLeo.id])
   for (const { id: room } of rooms) {

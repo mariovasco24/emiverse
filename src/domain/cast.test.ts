@@ -4,7 +4,7 @@ import { initialSave, parseWorldSave } from './world'
 it('añade posiciones independientes sin borrar partidas anteriores', () => {
   const { castPositions: _positions, ...old } = initialSave
   const saved = parseWorldSave(JSON.stringify({ ...old, collected: ['gift'] }))
-  expect(saved.castPositions).toEqual({ home: {}, garden: {}, kitchen: {}, bedroom: {} })
+  expect(saved.castPositions).toEqual({ home: {}, garden: {}, kitchen: {}, bedroom: {}, shop: {} })
   expect(saved.characters).toEqual(old.characters)
   expect(saved.collected).toEqual(['gift'])
 })
@@ -26,6 +26,7 @@ it('carga solo posiciones válidas de personajes existentes o de Leo', () => {
     garden: {},
     kitchen: {},
     bedroom: {},
+    shop: {},
   })
 })
 it('asigna puntos iniciales diferentes a cada personaje', () => {

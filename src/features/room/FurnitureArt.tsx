@@ -1,5 +1,15 @@
 import type { FurnitureId } from '../../domain/layout'
-export default function FurnitureArt({ id, open = false }: { id: FurnitureId; open?: boolean }) {
+import type { CargoKind } from '../../domain/inventory'
+import CargoArt from '../inventory/CargoArt'
+export default function FurnitureArt({
+  id,
+  open = false,
+  contents = [],
+}: {
+  id: FurnitureId
+  open?: boolean
+  contents?: CargoKind[]
+}) {
   switch (id) {
     case 'bed':
       return (
@@ -80,9 +90,17 @@ export default function FurnitureArt({ id, open = false }: { id: FurnitureId; op
               <g data-open="true">
                 <rect x="18" y="118" width="134" height="162" rx="8" fill="#f7f2d7" />
                 <path d="M20 173h130m-130 54h130" stroke="#b6d4ca" strokeWidth="7" />
-                <rect x="37" y="137" width="24" height="30" rx="5" fill="#dfacbc" />
-                <rect x="94" y="128" width="22" height="40" rx="4" fill="#c5dcc8" />
-                <ellipse cx="75" cy="213" rx="30" ry="10" fill="#eacb80" />
+                {contents.slice(0, 6).map((kind, i) => (
+                  <svg
+                    key={i}
+                    x={25 + (i % 3) * 38}
+                    y={125 + Math.floor(i / 3) * 55}
+                    width="34"
+                    height="40"
+                  >
+                    <CargoArt kind={kind} />
+                  </svg>
+                ))}
                 <path d="M13 114 2 131v145l11 9Z" fill="#b6d4ca" />
               </g>
             )}
